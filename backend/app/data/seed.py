@@ -47,6 +47,7 @@ VOCAB = [
 ]
 
 GRAMMAR = [
+    # Present Perfect
     {
         "topic": "Present Perfect",
         "question": "Choose the correct sentence:",
@@ -55,12 +56,42 @@ GRAMMAR = [
         "explanation": "Use Simple Past with specific time expressions like 'yesterday'. Present Perfect does not go with fixed past times.",
     },
     {
+        "topic": "Present Perfect",
+        "question": "She ___ in London for five years.",
+        "options": ["is living", "lives", "has lived", "lived"],
+        "correct": 2,
+        "explanation": "Present Perfect with 'for' expresses a period of time that started in the past and continues now.",
+    },
+    {
+        "topic": "Present Perfect",
+        "question": "___ you ever tried sushi?",
+        "options": ["Did", "Have", "Do", "Had"],
+        "correct": 1,
+        "explanation": "Use Present Perfect with 'ever' to ask about life experiences up to the present moment.",
+    },
+    # Conditionals
+    {
         "topic": "Conditionals",
         "question": "If I ___ the lottery, I would travel the world.",
         "options": ["win", "won", "had won", "would win"],
         "correct": 1,
         "explanation": "Second conditional: 'If + past simple, would + infinitive' for hypothetical present/future situations.",
     },
+    {
+        "topic": "Conditionals",
+        "question": "If it ___ tomorrow, we'll cancel the picnic.",
+        "options": ["rains", "rained", "would rain", "will rain"],
+        "correct": 0,
+        "explanation": "First conditional: 'If + present simple, will + infinitive' for real future possibilities.",
+    },
+    {
+        "topic": "Conditionals",
+        "question": "If she ___ harder, she would have passed the exam.",
+        "options": ["studied", "had studied", "has studied", "would study"],
+        "correct": 1,
+        "explanation": "Third conditional: 'If + past perfect, would have + past participle' for imaginary past situations.",
+    },
+    # Articles
     {
         "topic": "Articles",
         "question": "She is ___ honest person.",
@@ -69,12 +100,35 @@ GRAMMAR = [
         "explanation": "'Honest' starts with a silent 'h', so the vowel sound /ɒ/ requires 'an', not 'a'.",
     },
     {
+        "topic": "Articles",
+        "question": "I play ___ guitar every evening.",
+        "options": ["a", "an", "the", "—"],
+        "correct": 2,
+        "explanation": "Use 'the' with musical instruments. This is a fixed rule in English: play the piano, the violin, the guitar.",
+    },
+    {
+        "topic": "Articles",
+        "question": "___ Mount Everest is the highest mountain in the world.",
+        "options": ["A", "An", "The", "—"],
+        "correct": 3,
+        "explanation": "No article is used before the names of mountains. Compare: the Alps (mountain range) vs Mount Everest.",
+    },
+    # Passive Voice
+    {
         "topic": "Passive Voice",
         "question": "The report ___ by the manager last Friday.",
         "options": ["was written", "is written", "has been written", "wrote"],
         "correct": 0,
         "explanation": "Past passive: 'was/were + past participle'. Use 'was written' because 'last Friday' is a specific past time.",
     },
+    {
+        "topic": "Passive Voice",
+        "question": "The new bridge ___ by the end of next year.",
+        "options": ["will be completed", "will complete", "is completed", "has been completed"],
+        "correct": 0,
+        "explanation": "Future passive: 'will be + past participle'. The subject (bridge) receives the action.",
+    },
+    # Modal Verbs
     {
         "topic": "Modal Verbs",
         "question": "You ___ wear a seatbelt. It's the law.",
@@ -83,12 +137,35 @@ GRAMMAR = [
         "explanation": "'Must' expresses obligation or legal requirement. 'Should' is advice; 'might/could' express possibility.",
     },
     {
+        "topic": "Modal Verbs",
+        "question": "You look pale. You ___ be feeling well.",
+        "options": ["mustn't", "can't", "shouldn't", "needn't"],
+        "correct": 1,
+        "explanation": "'Can't' expresses logical deduction in the negative: it is impossible that you are feeling well.",
+    },
+    {
+        "topic": "Modal Verbs",
+        "question": "She ___ speak three languages when she was ten.",
+        "options": ["could", "might", "must", "should"],
+        "correct": 0,
+        "explanation": "'Could' is the past form of 'can' and expresses past ability.",
+    },
+    # Relative Clauses
+    {
         "topic": "Relative Clauses",
         "question": "The man ___ called is my uncle.",
         "options": ["which", "who", "whom", "whose"],
         "correct": 1,
         "explanation": "Use 'who' for people in subject relative clauses. 'Which' is for things; 'whom' is object form.",
     },
+    {
+        "topic": "Relative Clauses",
+        "question": "That's the book ___ changed my life.",
+        "options": ["who", "whom", "whose", "that"],
+        "correct": 3,
+        "explanation": "'That' (or 'which') is used for things in relative clauses. 'Who' is only for people.",
+    },
+    # Gerund vs Infinitive
     {
         "topic": "Gerund vs Infinitive",
         "question": "I enjoy ___ to music in the morning.",
@@ -97,11 +174,86 @@ GRAMMAR = [
         "explanation": "After 'enjoy', use the gerund (-ing form). Other verbs that take gerunds: avoid, suggest, finish.",
     },
     {
+        "topic": "Gerund vs Infinitive",
+        "question": "She decided ___ a new language.",
+        "options": ["learning", "to learn", "learn", "learned"],
+        "correct": 1,
+        "explanation": "After 'decide', use the infinitive (to + verb). Other verbs: want, hope, plan, promise.",
+    },
+    {
+        "topic": "Gerund vs Infinitive",
+        "question": "I stopped ___ two years ago.",
+        "options": ["to smoke", "smoke", "smoking", "smoked"],
+        "correct": 2,
+        "explanation": "'Stop + gerund' means to quit an activity. 'Stop + infinitive' means to pause in order to do something else.",
+    },
+    # Comparative & Superlative
+    {
         "topic": "Comparative",
         "question": "This exam was ___ than I expected.",
         "options": ["more hard", "harder", "hardest", "most hard"],
         "correct": 1,
         "explanation": "One-syllable adjectives form comparatives with '-er'. 'Hard → harder'. 'More' is for multi-syllable adjectives.",
+    },
+    {
+        "topic": "Superlative",
+        "question": "This is ___ film I have ever seen.",
+        "options": ["the most boring", "the more boring", "most boring", "more boring"],
+        "correct": 0,
+        "explanation": "Superlatives require 'the' and use '-est' (short adjectives) or 'most' (long adjectives): 'the most boring'.",
+    },
+    # Tenses
+    {
+        "topic": "Past Continuous",
+        "question": "I ___ dinner when she called.",
+        "options": ["cooked", "was cooking", "have cooked", "am cooking"],
+        "correct": 1,
+        "explanation": "Past Continuous (was/were + -ing) describes an action in progress when another action interrupted it.",
+    },
+    {
+        "topic": "Future Forms",
+        "question": "Look at those clouds! It ___ rain.",
+        "options": ["will", "is going to", "would", "shall"],
+        "correct": 1,
+        "explanation": "'Be going to' is used for predictions based on present evidence (the clouds you can see right now).",
+    },
+    {
+        "topic": "Past Perfect",
+        "question": "By the time we arrived, the film ___.",
+        "options": ["already started", "has already started", "had already started", "was already starting"],
+        "correct": 2,
+        "explanation": "Past Perfect (had + past participle) describes an action completed before another past event.",
+    },
+    # Prepositions
+    {
+        "topic": "Prepositions",
+        "question": "She has been working here ___ 2019.",
+        "options": ["for", "since", "during", "ago"],
+        "correct": 1,
+        "explanation": "'Since' is used with a specific point in time (2019). 'For' is used with a duration (five years).",
+    },
+    {
+        "topic": "Prepositions",
+        "question": "I'll meet you ___ Monday morning.",
+        "options": ["in", "at", "on", "by"],
+        "correct": 2,
+        "explanation": "Use 'on' with days and dates. Use 'in' with months/years. Use 'at' with specific clock times.",
+    },
+    # Word Order
+    {
+        "topic": "Word Order",
+        "question": "Which sentence is correct?",
+        "options": ["She always is late.", "She is always late.", "Always she is late.", "She is late always."],
+        "correct": 1,
+        "explanation": "Frequency adverbs (always, never, often) go after the verb 'be' but before other main verbs.",
+    },
+    # Reported Speech
+    {
+        "topic": "Reported Speech",
+        "question": "He said he ___ tired.",
+        "options": ["is", "was", "has been", "will be"],
+        "correct": 1,
+        "explanation": "In reported speech, the present tense shifts back: 'I am tired' → he said he was tired.",
     },
 ]
 
@@ -111,8 +263,9 @@ def seed():
     for word, defn, example, level in VOCAB:
         if word not in existing_words:
             db.add(VocabularyCard(word=word, definition=defn, example=example, level=level))
-    if db.query(GrammarExercise).count() == 0:
-        for ex in GRAMMAR:
+    existing_questions = {r.question for r in db.query(GrammarExercise.question).all()}
+    for ex in GRAMMAR:
+        if ex["question"] not in existing_questions:
             db.add(GrammarExercise(
                 topic=ex["topic"],
                 question=ex["question"],
