@@ -32,8 +32,12 @@ export default function Grammar() {
     setLoading(true)
     setIndex(0)
     setSelected(null)
+    setShowGen(false)
+    setGenMsg(null)
     axios.get(`/api/grammar/exercises?language=${language.code}`).then(res => {
-      setExercises(res.data)
+      const loaded: Exercise[] = res.data
+      setExercises(loaded)
+      if (loaded.length === 0) setShowGen(true)
       setLoading(false)
     })
   }, [language.code])
@@ -41,7 +45,7 @@ export default function Grammar() {
   const current = exercises[index]
 
   const choose = (i: number) => {
-    if (selected !== null) return
+    if (selected !== null || !current) return
     setSelected(i)
     const correct = i === current.correct
     setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }))
@@ -78,16 +82,20 @@ export default function Grammar() {
   }
 
   if (loading) return <p className="text-center text-gray-400 mt-20">Loading exercises...</p>
-  if (!current) return <p className="text-center text-gray-400 mt-20">No exercises available.</p>
 
-  const readableQuestion = current.question.replace(/___/g, 'blank')
+  const readableQuestion = current?.question.replace(/___/g, 'blank') ?? ''
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Grammar Exercises</h1>
+      {/* Header */}
+      <div className="flex flex-wrap gap-2 justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {language.flag} Grammar Exercises
+        </h1>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 dark:text-gray-400">Score: {score.correct}/{score.total}</span>
+          {exercises.length > 0 && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">Score: {score.correct}/{score.total}</span>
+          )}
           <button
             onClick={() => { setShowGen(g => !g); setGenMsg(null) }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 text-sm font-medium transition"
@@ -100,14 +108,16 @@ export default function Grammar() {
       {/* AI Generation panel */}
       {showGen && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 flex flex-col gap-4 border border-indigo-100 dark:border-indigo-900">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Generate exercise with AI</h3>
-          <div className="flex gap-2">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+            Generate {language.label} grammar exercise with AI
+          </h3>
+          <div className="flex gap-2 flex-wrap">
             <input
               value={genTopic}
               onChange={e => setGenTopic(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && generateExercise()}
               placeholder="Grammar topic (e.g. conditionals, passive voice…)"
-              className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <button
               onClick={generateExercise}
@@ -130,67 +140,87 @@ export default function Grammar() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-        <div className="flex items-start justify-between gap-3">
+      {/* Empty state */}
+      {exercises.length === 0 && (
+        <div className="flex flex-col items-center gap-4 mt-4 text-center max-w-sm mx-auto">
+          <span className="text-6xl">{language.flag}</span>
           <div>
-            <span className="text-xs uppercase tracking-widest text-indigo-400">{current.topic}</span>
-            <p className="mt-3 text-lg font-medium text-gray-900 dark:text-white">{current.question}</p>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              No exercises yet for {language.label}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm leading-relaxed">
+              Choose a grammar topic above and generate your first exercise with AI.
+            </p>
           </div>
-          <button
-            onClick={() => speak(readableQuestion, language.ttsLang)}
-            title="Listen to question"
-            className="mt-1 shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 transition text-sm"
-          >
-            🔊 <span className="hidden sm:inline">Listen</span>
-          </button>
         </div>
+      )}
 
-        <div className="mt-5 flex flex-col gap-3">
-          {current.options.map((opt, i) => {
-            let cls = 'flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all w-full '
-            if (selected === null) {
-              cls += 'border-gray-200 dark:border-gray-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer'
-            } else if (i === current.correct) {
-              cls += 'border-green-400 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-            } else if (i === selected) {
-              cls += 'border-red-400 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-            } else {
-              cls += 'border-gray-200 dark:border-gray-600 opacity-50'
-            }
-            return (
-              <div key={i} className="flex items-center gap-2">
-                <button className={cls} onClick={() => choose(i)}>
-                  <span>
-                    <span className="font-semibold mr-2 text-indigo-400">{String.fromCharCode(65 + i)}.</span>
-                    {opt}
-                  </span>
-                </button>
-                <button
-                  onClick={() => speak(opt, language.ttsLang)}
-                  title="Listen"
-                  className="shrink-0 p-2 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition"
-                >
-                  🔊
-                </button>
+      {/* Exercise card */}
+      {current && (
+        <>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="text-xs uppercase tracking-widest text-indigo-400">{current.topic}</span>
+                <p className="mt-3 text-lg font-medium text-gray-900 dark:text-white">{current.question}</p>
               </div>
-            )
-          })}
-        </div>
+              <button
+                onClick={() => speak(readableQuestion, language.ttsLang)}
+                title="Listen to question"
+                className="mt-1 shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 transition text-sm"
+              >
+                🔊 <span className="hidden sm:inline">Listen</span>
+              </button>
+            </div>
 
-        {selected !== null && (
-          <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-sm text-indigo-800 dark:text-indigo-200">
-            <strong>Explanation:</strong> {current.explanation}
+            <div className="mt-5 flex flex-col gap-3">
+              {current.options.map((opt, i) => {
+                let cls = 'flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all w-full text-sm '
+                if (selected === null) {
+                  cls += 'border-gray-200 dark:border-gray-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer'
+                } else if (i === current.correct) {
+                  cls += 'border-green-400 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                } else if (i === selected) {
+                  cls += 'border-red-400 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                } else {
+                  cls += 'border-gray-200 dark:border-gray-600 opacity-50'
+                }
+                return (
+                  <div key={i} className="flex items-center gap-2">
+                    <button className={cls} onClick={() => choose(i)}>
+                      <span>
+                        <span className="font-semibold mr-2 text-indigo-400">{String.fromCharCode(65 + i)}.</span>
+                        {opt}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => speak(opt, language.ttsLang)}
+                      title="Listen"
+                      className="shrink-0 p-2 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition"
+                    >
+                      🔊
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {selected !== null && (
+              <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-sm text-indigo-800 dark:text-indigo-200">
+                <strong>Explanation:</strong> {current.explanation}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {selected !== null && (
-        <button
-          onClick={next}
-          className="self-end px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
-        >
-          Next →
-        </button>
+          {selected !== null && (
+            <button
+              onClick={next}
+              className="self-end px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+            >
+              Next →
+            </button>
+          )}
+        </>
       )}
     </div>
   )
