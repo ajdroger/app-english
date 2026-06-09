@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from 'react'
 
 export interface Language {
-  code: string      // used in API calls & TTS
-  label: string     // display name
-  flag: string      // emoji flag
-  ttsLang: string   // BCP-47 tag for SpeechSynthesisUtterance
+  code: string
+  label: string
+  flag: string
+  ttsLang: string
 }
 
 export const LANGUAGES: Language[] = [
@@ -22,28 +22,53 @@ export const LANGUAGES: Language[] = [
   { code: 'hindi',      label: 'हिन्दी',     flag: '🇮🇳', ttsLang: 'hi-IN' },
 ]
 
+function detectBrowserLanguage(): Language {
+  try {
+    const code = navigator.language.split('-')[0].toLowerCase()
+    return LANGUAGES.find(l => l.ttsLang.toLowerCase().startsWith(code)) ?? LANGUAGES[0]
+  } catch {
+    return LANGUAGES[0]
+  }
+}
+
 interface LanguageContextType {
-  language: Language
+  language: Language        // target: what the user is learning
   setLanguage: (l: Language) => void
+  nativeLanguage: Language  // native: what the user already speaks
+  setNativeLanguage: (l: Language) => void
 }
 
 const LanguageContext = createContext<LanguageContextType>({
   language: LANGUAGES[0],
   setLanguage: () => {},
+  nativeLanguage: LANGUAGES[0],
+  setNativeLanguage: () => {},
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const saved = localStorage.getItem('lingua_language')
-  const initial = LANGUAGES.find(l => l.code === saved) ?? LANGUAGES[0]
-  const [language, setLanguageState] = useState<Language>(initial)
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem('lingua_language')
+    return LANGUAGES.find(l => l.code === saved) ?? LANGUAGES[0]
+  })
+
+  const [nativeLanguage, setNativeLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem('lingua_native')
+    if (saved) return LANGUAGES.find(l => l.code === saved) ?? detectBrowserLanguage()
+    return detectBrowserLanguage()
+  })
 
   const setLanguage = (l: Language) => {
     localStorage.setItem('lingua_language', l.code)
     setLanguageState(l)
   }
 
+  const setNativeLanguage = (l: Language) => {
+    localStorage.setItem('lingua_native', l.code)
+    setNativeLanguageState(l)
+  }
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage, nativeLanguage, setNativeLanguage }}>
       {children}
     </LanguageContext.Provider>
   )

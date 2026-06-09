@@ -16,7 +16,7 @@ interface Exercise {
 const TOPICS = ['present perfect', 'conditionals', 'passive voice', 'modal verbs', 'reported speech', 'articles', 'prepositions', 'relative clauses', 'phrasal verbs', 'gerunds and infinitives']
 
 export default function Grammar() {
-  const { language } = useLanguage()
+  const { language, nativeLanguage } = useLanguage()
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
@@ -64,7 +64,7 @@ export default function Grammar() {
     setGenerating(true)
     setGenMsg(null)
     try {
-      const res = await axios.post('/api/grammar/generate', { topic, language: language.code })
+      const res = await axios.post('/api/grammar/generate', { topic, language: language.code, native_language: nativeLanguage.code })
       const ex: Exercise = res.data
       setExercises(prev => {
         const next = [...prev, ex]

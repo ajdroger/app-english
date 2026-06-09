@@ -20,7 +20,7 @@ const LEVELS = ['A2', 'B1', 'B2', 'C1', 'C2']
 const TOPICS = ['business', 'travel', 'technology', 'science', 'health', 'politics', 'arts', 'sports', 'environment', 'food', 'law', 'psychology', 'history', 'mathematics', 'literature']
 
 export default function Vocabulary() {
-  const { language } = useLanguage()
+  const { language, nativeLanguage } = useLanguage()
   const [cards, setCards] = useState<Card[]>([])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -73,7 +73,7 @@ export default function Vocabulary() {
     setGenResult(null)
     try {
       const res = await axios.post('/api/vocabulary/generate', {
-        topic, level: genLevel, count: 10, language: language.code,
+        topic, level: genLevel, count: 10, language: language.code, native_language: nativeLanguage.code,
       })
       const { added, cards: newCards } = res.data
       if (added > 0) {

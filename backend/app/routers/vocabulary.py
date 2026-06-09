@@ -54,6 +54,7 @@ class GenerateIn(BaseModel):
     level: str = "B2"
     count: int = 10
     language: str = "english"
+    native_language: str = "english"
 
 
 @router.post("/generate")
@@ -65,8 +66,11 @@ def generate_words(data: GenerateIn, db: Session = Depends(get_db)):
     prompt = (
         f"Generate {data.count} {data.language} vocabulary words for level {data.level} "
         f"on the topic \"{data.topic}\". "
-        f"Write the definition and example sentence in {data.language}. "
-        "For each word provide: word (lowercase), a clear concise definition, "
+        f"The student's native language is {data.native_language}. "
+        f"The 'word' field must be in {data.language}. "
+        f"Write the 'definition' and 'example' IN {data.native_language} "
+        f"so the student can understand the meaning. "
+        "For each word provide: the word itself, a clear concise definition, "
         "and a natural example sentence showing real usage. "
         "Do NOT include words already too common. "
         "Respond with JSON only, no markdown:\n"

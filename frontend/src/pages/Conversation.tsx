@@ -16,7 +16,7 @@ const SCENARIOS = [
 ]
 
 export default function Conversation() {
-  const { language } = useLanguage()
+  const { language, nativeLanguage } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -43,6 +43,7 @@ export default function Conversation() {
         messages: next,
         scenario: scenario.id,
         language: language.code,
+        native_language: nativeLanguage.code,
       })
       setMessages([...next, { role: 'assistant', content: res.data.reply }])
       awardXp('conversation_message')
@@ -77,7 +78,7 @@ export default function Conversation() {
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 overflow-y-auto flex flex-col gap-3">
         {messages.length === 0 && (
           <p className="text-gray-400 text-center m-auto text-sm">
-            Start a conversation in <strong>{language.label}</strong>. The AI will correct your mistakes and help you improve.
+            Start a conversation in <strong>{language.label}</strong>. The AI will correct your mistakes and explain them in <strong>{nativeLanguage.label}</strong>.
           </p>
         )}
         {messages.map((m, i) => (

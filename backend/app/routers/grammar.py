@@ -29,16 +29,19 @@ def get_exercises(language: str = Query("english"), db: Session = Depends(get_db
 class GenerateIn(BaseModel):
     topic: str
     language: str = "english"
+    native_language: str = "english"
 
 
 @router.post("/generate")
 def generate_exercise(data: GenerateIn, db: Session = Depends(get_db)):
     prompt = (
-        f"Generate a grammar exercise about \"{data.topic}\" for {data.language} learners. "
-        f"Write the question and all options in {data.language}. "
+        f"Generate a grammar exercise about \"{data.topic}\" for learners of {data.language}. "
+        f"The student's native language is {data.native_language}. "
+        f"Write the question and all answer options IN {data.language}. "
+        f"Write the explanation IN {data.native_language} so the student can understand the grammar rule. "
         "Create a fill-in-the-blank or choose-the-correct-form question. "
         "Provide 4 answer options (only one correct), the correct answer index (0-3), "
-        "and a clear explanation of the grammar rule. "
+        "and a clear explanation of the rule. "
         "Respond with JSON only, no markdown:\n"
         '{"topic":"...","question":"...","options":["...","...","...","..."],"correct":0,"explanation":"..."}'
     )
