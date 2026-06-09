@@ -12,11 +12,6 @@ interface Card {
 
 type Section = 'learning' | 'unseen'
 
-interface Queue {
-  cards: Card[]
-  section: Section
-}
-
 export default function Review() {
   const [queue, setQueue] = useState<Card[]>([])
   const [sectionLabels, setSectionLabels] = useState<Section[]>([])

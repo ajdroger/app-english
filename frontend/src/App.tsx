@@ -40,7 +40,7 @@ export default function App() {
         <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-5xl mx-auto px-4 flex gap-1 py-3 items-center">
             <span className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mr-6 self-center">
-              EnglishApp
+              LinguaApp
             </span>
             {navItems.map(({ to, label, badge }) => (
               <NavLink
