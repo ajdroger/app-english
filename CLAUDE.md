@@ -61,7 +61,7 @@ english-app/
 | `VocabularyCard` | word, definition, example, level (B1/B2/C1/C2) |
 | `VocabularyProgress` | card_id, known (bool) |
 | `GrammarExercise` | topic, question, options (JSON string), correct (int index), explanation |
-| `UserStats` | points, streak, best_streak, last_activity_date, grammar_correct, grammar_total, conversations, listening_attempts |
+| `UserStats` | points, streak, best_streak, last_activity_date, grammar_correct, grammar_total, conversations, listening_attempts, writing_submissions, writing_total_score |
 
 ## Key design decisions
 
@@ -72,8 +72,10 @@ english-app/
 - **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
 - **Text-to-speech**: Grammar uses the browser's `SpeechSynthesisUtterance` API (no backend, no API key). `speak()` helper at the top of `Grammar.tsx` cancels any ongoing speech before starting a new one. `___` in questions is replaced with "blank" before reading.
 - **Listening**: no real STT — Groq evaluates pronunciation heuristically. To add Whisper, process the audio file before the Groq call in `listening.py`.
-- **Writing feedback**: `POST /api/writing/evaluate` sends the prompt + user text to Groq and returns `{ score, grammar, vocabulary, fluency, improved, tip }`. Writing is not persisted — stateless per submission. XP is awarded via `awardXp('grammar_correct', bonus)` where bonus = score/10.
+- **Writing feedback**: `POST /api/writing/evaluate` sends the prompt + user text to Groq and returns `{ score, grammar, vocabulary, fluency, improved, tip }`. Writing is not persisted — stateless per submission. XP is awarded via `awardXp('writing_submit', score/10, score)` — the third argument is the raw score (0-100) stored in `writing_total_score` for average calculation.
 - **Writing prompts**: 15 built-in prompts split across 5 types (Descriptive, Opinion, Narrative, Formal, Informal). `POST /api/writing/generate-prompt` generates additional prompts by topic, type, and level; they live in React state only (not DB).
+- **Writing stats in Profile**: `writing_submissions` and `writing_total_score` columns in `UserStats` (added via ALTER TABLE). `GET /api/stats` returns `writing: { submissions, avg_score }`. Profile shows a stat card and a dedicated section with submission count + average score bar. `ActivityIn` has an optional `score` field used only for `writing_submit`.
+- **awardXp signature**: `awardXp(action, bonus=0, score=0)` in `StatsBar.tsx` — `score` is passed through to the backend for writing tracking; all other actions ignore it.
 - **Schema migrations**: `Base.metadata.create_all` only creates missing *tables*, not columns. When adding columns to existing tables, run `ALTER TABLE` manually.
 
 ## Environment
