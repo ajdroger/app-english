@@ -25,7 +25,7 @@ Both servers must run simultaneously. Vite proxies all `/api/*` to `http://local
 ```
 english-app/
 ├── frontend/src/
-│   ├── App.tsx                  # BrowserRouter + nav (6 links) + ReviewBadge + StatsBar in header
+│   ├── App.tsx                  # BrowserRouter + nav (7 links) + ReviewBadge + StatsBar in header
 │   ├── components/
 │   │   └── StatsBar.tsx         # Streak 🔥 + XP ⭐ badges; exports awardXp() used by all pages
 │   └── pages/
@@ -33,6 +33,8 @@ english-app/
 │       ├── Review.tsx           # Review queue: 'still learning' first, then unseen; completion screen
 │       ├── Grammar.tsx          # Multiple-choice quiz; 🔊 Listen on question + each option; correct answer read aloud after answering; awards XP
 │       ├── Listening.tsx        # Records audio → POST /api/listening/evaluate → score + feedback
+│       ├── Writing.tsx          # Writing prompts (15 built-in + AI-generated); POST /api/writing/evaluate
+│       │                        #   → score, grammar, vocabulary, fluency, improved version; awards XP
 │       ├── Conversation.tsx     # Chat UI with 4 scenario presets; awards XP per message sent
 │       └── Profile.tsx          # Stats dashboard: level card, streak, vocab by level, grammar accuracy
 │
@@ -46,6 +48,8 @@ english-app/
         ├── vocabulary.py        # GET /cards, GET/POST /progress, GET /review
         ├── grammar.py           # GET /api/grammar/exercises (options stored as JSON string in DB)
         ├── listening.py         # POST /api/listening/evaluate — Groq Llama 3.3 70B
+        ├── writing.py           # POST /api/writing/evaluate — score + grammar/vocab/fluency feedback
+        │                        # POST /api/writing/generate-prompt — AI-generated prompt by topic/type/level
         ├── conversation.py      # POST /api/conversation/chat — Groq with scenario system prompts
         └── stats.py             # GET /api/stats, POST /api/stats/activity
 ```
@@ -68,6 +72,8 @@ english-app/
 - **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
 - **Text-to-speech**: Grammar uses the browser's `SpeechSynthesisUtterance` API (no backend, no API key). `speak()` helper at the top of `Grammar.tsx` cancels any ongoing speech before starting a new one. `___` in questions is replaced with "blank" before reading.
 - **Listening**: no real STT — Groq evaluates pronunciation heuristically. To add Whisper, process the audio file before the Groq call in `listening.py`.
+- **Writing feedback**: `POST /api/writing/evaluate` sends the prompt + user text to Groq and returns `{ score, grammar, vocabulary, fluency, improved, tip }`. Writing is not persisted — stateless per submission. XP is awarded via `awardXp('grammar_correct', bonus)` where bonus = score/10.
+- **Writing prompts**: 15 built-in prompts split across 5 types (Descriptive, Opinion, Narrative, Formal, Informal). `POST /api/writing/generate-prompt` generates additional prompts by topic, type, and level; they live in React state only (not DB).
 - **Schema migrations**: `Base.metadata.create_all` only creates missing *tables*, not columns. When adding columns to existing tables, run `ALTER TABLE` manually.
 
 ## Environment
