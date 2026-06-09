@@ -25,11 +25,12 @@ Both servers must run simultaneously. Vite proxies all `/api/*` to `http://local
 ```
 english-app/
 ├── frontend/src/
-│   ├── App.tsx                  # BrowserRouter + nav (5 links) + StatsBar in header
+│   ├── App.tsx                  # BrowserRouter + nav (6 links) + ReviewBadge + StatsBar in header
 │   ├── components/
 │   │   └── StatsBar.tsx         # Streak 🔥 + XP ⭐ badges; exports awardXp() used by all pages
 │   └── pages/
 │       ├── Vocabulary.tsx       # Flashcard flip animation; marks known/learning → awards XP
+│       ├── Review.tsx           # Review queue: 'still learning' first, then unseen; completion screen
 │       ├── Grammar.tsx          # Multiple-choice quiz with explanation; awards XP on answer
 │       ├── Listening.tsx        # Records audio → POST /api/listening/evaluate → score + feedback
 │       ├── Conversation.tsx     # Chat UI with 4 scenario presets; awards XP per message sent
@@ -39,10 +40,10 @@ english-app/
     ├── main.py                  # FastAPI app: DB init, seed, CORS, all routers registered here
     ├── database.py              # SQLAlchemy engine + SessionLocal + Base (SQLite)
     ├── models/models.py         # VocabularyCard, VocabularyProgress, GrammarExercise, UserStats
-    ├── data/seed.py             # 37 vocab cards (B1/B2/C1/C2) + 28 grammar exercises;
+    ├── data/seed.py             # 66 vocab cards (B1/B2/C1/C2) + 28 grammar exercises;
     │                            #   upserts by word/question — safe to re-run
     └── routers/
-        ├── vocabulary.py        # GET /api/vocabulary/cards, GET/POST /api/vocabulary/progress
+        ├── vocabulary.py        # GET /cards, GET/POST /progress, GET /review
         ├── grammar.py           # GET /api/grammar/exercises (options stored as JSON string in DB)
         ├── listening.py         # POST /api/listening/evaluate — Groq Llama 3.3 70B
         ├── conversation.py      # POST /api/conversation/chat — Groq with scenario system prompts
@@ -61,6 +62,7 @@ english-app/
 ## Key design decisions
 
 - **AI provider**: Groq SDK, model `llama-3.3-70b-versatile`. Change the model string in `conversation.py` and `listening.py` to swap models.
+- **Review queue**: `GET /api/vocabulary/review` returns `{ learning, unseen, total }`. "Still learning" cards (known=False) come first, then cards with no progress row at all. `ReviewBadge` in `App.tsx` fetches this count on mount and shows a red pill on the nav link.
 - **XP flow**: pages call `awardXp(action, bonus?)` from `StatsBar.tsx` → `POST /api/stats/activity` → `stats.py:XP` dict maps action to points. Streak is updated server-side on first activity of each calendar day.
 - **Level system**: 7 tiers (Beginner → Expert) in `stats.py:LEVELS` as `(min_xp, name, icon)` tuples.
 - **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
