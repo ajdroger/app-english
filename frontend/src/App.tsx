@@ -3,6 +3,7 @@ import Vocabulary from './pages/Vocabulary'
 import Grammar from './pages/Grammar'
 import Listening from './pages/Listening'
 import Conversation from './pages/Conversation'
+import StatsBar from './components/StatsBar'
 
 const navItems = [
   { to: '/', label: '📚 Vocabulary' },
@@ -16,7 +17,7 @@ export default function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-5xl mx-auto px-4 flex gap-1 py-3">
+          <div className="max-w-5xl mx-auto px-4 flex gap-1 py-3 items-center">
             <span className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mr-6 self-center">
               EnglishApp
             </span>
@@ -36,6 +37,9 @@ export default function App() {
                 {label}
               </NavLink>
             ))}
+            <div className="ml-auto">
+              <StatsBar />
+            </div>
           </div>
         </nav>
 

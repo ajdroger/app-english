@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
+import { awardXp } from '../components/StatsBar'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -38,6 +39,7 @@ export default function Conversation() {
         scenario: scenario.id,
       })
       setMessages([...next, { role: 'assistant', content: res.data.reply }])
+      awardXp('conversation_message')
     } finally {
       setLoading(false)
     }

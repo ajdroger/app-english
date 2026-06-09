@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { awardXp } from '../components/StatsBar'
 
 interface Card {
   id: number
@@ -40,6 +41,7 @@ export default function Vocabulary() {
     if (!current) return
     await axios.post('/api/vocabulary/progress', { card_id: current.id, known })
     setProgress(prev => ({ ...prev, [current.id]: known }))
+    awardXp(known ? 'vocab_known' : 'vocab_learning')
     next()
   }
 

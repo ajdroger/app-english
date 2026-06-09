@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Date
 from app.database import Base
 
 class VocabularyCard(Base):
@@ -23,3 +23,10 @@ class GrammarExercise(Base):
     options = Column(String, nullable=False)  # JSON array
     correct = Column(Integer, nullable=False)
     explanation = Column(String, nullable=False)
+
+class UserStats(Base):
+    __tablename__ = "user_stats"
+    id = Column(Integer, primary_key=True, default=1)
+    points = Column(Integer, default=0)
+    streak = Column(Integer, default=0)
+    last_activity_date = Column(Date, nullable=True)

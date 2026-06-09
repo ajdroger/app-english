@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { awardXp } from '../components/StatsBar'
 
 interface Exercise {
   id: number
@@ -29,10 +30,9 @@ export default function Grammar() {
   const choose = (i: number) => {
     if (selected !== null) return
     setSelected(i)
-    setScore(s => ({
-      correct: s.correct + (i === current.correct ? 1 : 0),
-      total: s.total + 1,
-    }))
+    const correct = i === current.correct
+    setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }))
+    awardXp(correct ? 'grammar_correct' : 'grammar_wrong')
   }
 
   const next = () => {

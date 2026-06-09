@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import axios from 'axios'
+import { awardXp } from '../components/StatsBar'
 
 type Step = 'idle' | 'recording' | 'loading' | 'result'
 
@@ -49,6 +50,7 @@ export default function Listening() {
         const res = await axios.post('/api/listening/evaluate', form)
         setFeedback(res.data)
         setStep('result')
+        awardXp('listening_base', Math.round(res.data.score / 10))
       } catch {
         setStep('idle')
       }
