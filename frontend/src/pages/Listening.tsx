@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
+import { speak } from '../utils/speak'
 
 type Step = 'idle' | 'recording' | 'loading' | 'result'
 
@@ -66,13 +67,7 @@ export default function Listening() {
 
   const phrase = phrases[phraseIndex]
 
-  const speak = () => {
-    window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(phrase)
-    u.lang = 'en-US'
-    u.rate = 0.9
-    window.speechSynthesis.speak(u)
-  }
+  const speakPhrase = () => speak(phrase)
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -190,7 +185,7 @@ export default function Listening() {
           "{phrase}"
         </p>
 
-        <button onClick={speak} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm">
+        <button onClick={speakPhrase} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm">
           🔊 Hear pronunciation
         </button>
 

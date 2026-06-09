@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
+import { speak } from '../utils/speak'
 
 interface Exercise {
   id: number
@@ -9,14 +10,6 @@ interface Exercise {
   options: string[]
   correct: number
   explanation: string
-}
-
-function speak(text: string) {
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'en-US'
-  u.rate = 0.9
-  window.speechSynthesis.speak(u)
 }
 
 const TOPICS = ['present perfect', 'conditionals', 'passive voice', 'modal verbs', 'reported speech', 'articles', 'prepositions', 'relative clauses', 'phrasal verbs', 'gerunds and infinitives']
