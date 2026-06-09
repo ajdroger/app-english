@@ -19,12 +19,19 @@ function speak(text: string) {
   window.speechSynthesis.speak(u)
 }
 
+const TOPICS = ['present perfect', 'conditionals', 'passive voice', 'modal verbs', 'reported speech', 'articles', 'prepositions', 'relative clauses', 'phrasal verbs', 'gerunds and infinitives']
+
 export default function Grammar() {
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [score, setScore] = useState({ correct: 0, total: 0 })
   const [loading, setLoading] = useState(true)
+
+  const [showGen, setShowGen] = useState(false)
+  const [genTopic, setGenTopic] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [genMsg, setGenMsg] = useState<string | null>(null)
 
   useEffect(() => {
     axios.get('/api/grammar/exercises').then(res => {
@@ -41,7 +48,6 @@ export default function Grammar() {
     const correct = i === current.correct
     setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }))
     awardXp(correct ? 'grammar_correct' : 'grammar_wrong')
-    // Read the correct answer aloud after choosing
     speak(current.options[current.correct])
   }
 
@@ -51,20 +57,80 @@ export default function Grammar() {
     setIndex(i => (i + 1) % exercises.length)
   }
 
+  const generateExercise = async () => {
+    const topic = genTopic.trim() || 'mixed grammar'
+    setGenerating(true)
+    setGenMsg(null)
+    try {
+      const res = await axios.post('/api/grammar/generate', { topic })
+      const ex: Exercise = res.data
+      setExercises(prev => {
+        const next = [...prev, ex]
+        setIndex(next.length - 1)
+        return next
+      })
+      setSelected(null)
+      setGenMsg(`✅ New exercise on "${ex.topic}"`)
+      setShowGen(false)
+    } catch {
+      setGenMsg('❌ Generation failed. Try again.')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   if (loading) return <p className="text-center text-gray-400 mt-20">Loading exercises...</p>
   if (!current) return <p className="text-center text-gray-400 mt-20">No exercises available.</p>
 
-  // Build a readable version of the question (replace ___ with "blank")
   const readableQuestion = current.question.replace(/___/g, 'blank')
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Grammar Exercises</h1>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          Score: {score.correct}/{score.total}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500 dark:text-gray-400">Score: {score.correct}/{score.total}</span>
+          <button
+            onClick={() => { setShowGen(g => !g); setGenMsg(null) }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 text-sm font-medium transition"
+          >
+            ✨ Generate
+          </button>
+        </div>
       </div>
+
+      {/* AI Generation panel */}
+      {showGen && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 flex flex-col gap-4 border border-indigo-100 dark:border-indigo-900">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Generate exercise with AI</h3>
+          <div className="flex gap-2">
+            <input
+              value={genTopic}
+              onChange={e => setGenTopic(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && generateExercise()}
+              placeholder="Grammar topic (e.g. conditionals, passive voice…)"
+              className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+            <button
+              onClick={generateExercise}
+              disabled={generating}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
+            >
+              {generating ? '…' : 'Generate'}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {TOPICS.map(t => (
+              <button key={t} onClick={() => setGenTopic(t)}
+                className="px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs hover:bg-indigo-100 dark:hover:bg-indigo-900/40 hover:text-indigo-700 transition">
+                {t}
+              </button>
+            ))}
+          </div>
+          {generating && <p className="text-indigo-400 text-sm animate-pulse">Generating exercise with AI…</p>}
+          {genMsg && <p className="text-sm font-medium">{genMsg}</p>}
+        </div>
+      )}
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
         <div className="flex items-start justify-between gap-3">

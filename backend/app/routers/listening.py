@@ -2,7 +2,8 @@ import os
 import json
 import tempfile
 import difflib
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from pydantic import BaseModel
 from groq import Groq
 
 router = APIRouter(prefix="/api/listening")
@@ -40,3 +41,29 @@ async def evaluate(audio: UploadFile = File(...), phrase: str = Form(...)):
         return data
     finally:
         os.unlink(tmp_path)
+
+class GenerateIn(BaseModel):
+    topic: str
+    difficulty: str = "intermediate"
+    count: int = 5
+
+@router.post("/generate")
+def generate_phrases(data: GenerateIn):
+    prompt = (
+        f"Generate {data.count} English phrases or sentences on the topic \"{data.topic}\" "
+        f"at {data.difficulty} difficulty level. "
+        "They should be natural, authentic English perfect for pronunciation practice. "
+        "Vary the length and structure. Avoid clichés. "
+        "Respond with JSON only, no markdown:\n"
+        '{"phrases":["...","...","...","...","..."]}'
+    )
+    res = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        max_tokens=400,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    try:
+        payload = json.loads(res.choices[0].message.content)
+        return {"phrases": payload["phrases"]}
+    except Exception:
+        raise HTTPException(status_code=500, detail="AI returned invalid JSON")
