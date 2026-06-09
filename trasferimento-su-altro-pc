@@ -1,0 +1,188 @@
+================================================================================
+  LINGUAAPP — TRASFERIMENTO SU ALTRO PC
+  (verifica prima cosa hai già installato)
+================================================================================
+
+Questo file ti guida nel trasferire il progetto su un altro PC senza
+installare cose già presenti. Esegui prima i comandi di verifica,
+poi installa solo ciò che manca.
+
+================================================================================
+  PASSO 0 — COSA COPIARE SUL PENDRIVE
+================================================================================
+
+Copia TUTTA la cartella multi-learning-language-app/ TRANNE queste due:
+
+  ❌ backend/venv/          (ricrealo — i percorsi sono assoluti, non funziona)
+  ❌ frontend/node_modules/ (ricrealo — pesa 300+ MB, 2 minuti a reinstallare)
+
+Tutto il resto si copia normalmente, incluso:
+  ✅ backend/.env            (contiene la tua GROQ_API_KEY)
+  ✅ backend/lingua.db       (il database con tutte le parole e i progressi)
+  ✅ tutto il codice sorgente
+
+================================================================================
+  PASSO 1 — VERIFICA COSA HAI GIÀ SUL NUOVO PC
+================================================================================
+
+Apri PowerShell (tasto Win → cerca "PowerShell" → apri) ed esegui:
+
+────────────────────────────────────────────────────────────────────────────────
+  PYTHON
+────────────────────────────────────────────────────────────────────────────────
+
+  python --version
+
+  ✅ OK se mostra:  Python 3.11.x  (o versione superiore)
+  ❌ Errore o versione < 3.11 → vedi PASSO 2 per installarlo
+
+  Verifica anche pip:
+  pip --version
+
+  ✅ OK se mostra qualcosa come:  pip 24.x.x from ...
+  ❌ Errore → pip si installa insieme a Python (se hai Python, reinstallalo)
+
+────────────────────────────────────────────────────────────────────────────────
+  NODE.JS e NPM
+────────────────────────────────────────────────────────────────────────────────
+
+  node --version
+
+  ✅ OK se mostra:  v20.x.x  (o versione superiore)
+  ❌ Errore → vedi PASSO 2 per installarlo
+
+  npm --version
+
+  ✅ OK se mostra:  10.x.x  (o simile)
+  ❌ Errore → npm viene con Node.js, reinstalla Node
+
+────────────────────────────────────────────────────────────────────────────────
+  GIT (opzionale — serve solo se vuoi fare push su GitHub)
+────────────────────────────────────────────────────────────────────────────────
+
+  git --version
+
+  ✅ OK se mostra:  git version 2.x.x
+  ❌ Errore → installa da https://git-scm.com/download/win  (o ignora se non ti serve)
+
+================================================================================
+  PASSO 2 — INSTALLA SOLO CIÒ CHE MANCA
+================================================================================
+
+  PYTHON mancante o vecchio:
+    → https://www.python.org/downloads/
+    → Scarica la versione 3.11 o superiore
+    → Esegui il .exe
+    ⚠️  IMPORTANTE: spunta "Add Python to PATH" nella prima schermata
+    → Chiudi e riapri PowerShell dopo l'installazione
+    → Verifica: python --version
+
+  NODE.JS mancante o vecchio:
+    → https://nodejs.org/
+    → Scarica la versione LTS (Long Term Support)
+    → Esegui il .msi e installa (tutto default)
+    → Chiudi e riapri PowerShell dopo l'installazione
+    → Verifica: node --version
+
+================================================================================
+  PASSO 3 — PREPARA IL PROGETTO
+================================================================================
+
+Naviga nella cartella del progetto (adatta il percorso):
+
+  cd C:\Users\TuoNome\Desktop\multi-learning-language-app
+
+────────────────────────────────────────────────────────────────────────────────
+  VERIFICA se il venv esiste già
+────────────────────────────────────────────────────────────────────────────────
+
+  dir backend\venv
+
+  ✅ Mostra file → il venv esiste, ma potrebbe non funzionare (percorsi rotti).
+     Testa prima: backend\venv\Scripts\activate
+     Se funziona senza errori → puoi saltare la creazione del venv.
+     Se da errore → elimina e ricrea (vedi sotto).
+
+  ❌ "Impossibile trovare" → venv non esiste, crealo:
+
+  cd backend
+  python -m venv venv
+  venv\Scripts\activate
+  pip install -r requirements.txt
+  cd ..
+
+────────────────────────────────────────────────────────────────────────────────
+  VERIFICA se node_modules esiste già
+────────────────────────────────────────────────────────────────────────────────
+
+  dir frontend\node_modules
+
+  ✅ Mostra file → probabilmente già installato.
+     Testa con: cd frontend && npm run dev
+     Se parte → ok, non reinstallare.
+     Se da errore → esegui npm install.
+
+  ❌ "Impossibile trovare" → non esiste, installalo:
+
+  cd frontend
+  npm install
+  cd ..
+
+────────────────────────────────────────────────────────────────────────────────
+  VERIFICA la API Key Groq
+────────────────────────────────────────────────────────────────────────────────
+
+  type backend\.env
+
+  ✅ Mostra: GROQ_API_KEY=gsk_...  → ok, la key c'è già (copiata col progetto)
+  ❌ Errore o file vuoto → crea il file:
+
+     Apri Notepad e scrivi:
+       GROQ_API_KEY=gsk_...   (la tua chiave da console.groq.com)
+     Salva come:  backend\.env
+     (assicurati che si chiami .env e non .env.txt)
+
+================================================================================
+  PASSO 4 — AVVIO (ogni volta)
+================================================================================
+
+Apri DUE finestre di PowerShell:
+
+  Finestra 1 — Backend:
+    cd C:\...\multi-learning-language-app\backend
+    venv\Scripts\activate
+    uvicorn app.main:app --reload
+
+  Finestra 2 — Frontend:
+    cd C:\...\multi-learning-language-app\frontend
+    npm run dev
+
+  Apri Chrome su: http://localhost:5173
+
+================================================================================
+  NOTE WINDOWS
+================================================================================
+
+  🔊 TTS (bottoni audio)   → funziona di default su Windows, nessun extra
+  🔊 Voci extra (altre lingue)
+     Impostazioni → Ora e lingua → Voce → Aggiungi voci
+     Aggiungi: Spagnolo, Francese, Italiano, ecc. secondo le lingue che usi
+
+  PWA (installa come app nativa):
+     In Chrome: clicca l'icona 💻 nella barra → "Installa LinguaApp"
+     In Edge:   ··· → App → "Installa questo sito come app"
+     L'app appare nel menu Start e sul desktop.
+
+================================================================================
+  RIEPILOGO COMANDI DI VERIFICA
+================================================================================
+
+  python --version       → deve essere 3.11+
+  pip --version          → deve funzionare
+  node --version         → deve essere 20+
+  npm --version          → deve funzionare
+  dir backend\venv       → venv esiste?
+  dir frontend\node_modules → node_modules esiste?
+  type backend\.env      → API key presente?
+
+================================================================================
