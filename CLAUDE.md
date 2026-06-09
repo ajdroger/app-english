@@ -31,7 +31,7 @@ english-app/
 │   └── pages/
 │       ├── Vocabulary.tsx       # Flashcard flip animation; marks known/learning → awards XP
 │       ├── Review.tsx           # Review queue: 'still learning' first, then unseen; completion screen
-│       ├── Grammar.tsx          # Multiple-choice quiz with explanation; awards XP on answer
+│       ├── Grammar.tsx          # Multiple-choice quiz; 🔊 Listen on question + each option; correct answer read aloud after answering; awards XP
 │       ├── Listening.tsx        # Records audio → POST /api/listening/evaluate → score + feedback
 │       ├── Conversation.tsx     # Chat UI with 4 scenario presets; awards XP per message sent
 │       └── Profile.tsx          # Stats dashboard: level card, streak, vocab by level, grammar accuracy
@@ -66,6 +66,7 @@ english-app/
 - **XP flow**: pages call `awardXp(action, bonus?)` from `StatsBar.tsx` → `POST /api/stats/activity` → `stats.py:XP` dict maps action to points. Streak is updated server-side on first activity of each calendar day.
 - **Level system**: 7 tiers (Beginner → Expert) in `stats.py:LEVELS` as `(min_xp, name, icon)` tuples.
 - **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
+- **Text-to-speech**: Grammar uses the browser's `SpeechSynthesisUtterance` API (no backend, no API key). `speak()` helper at the top of `Grammar.tsx` cancels any ongoing speech before starting a new one. `___` in questions is replaced with "blank" before reading.
 - **Listening**: no real STT — Groq evaluates pronunciation heuristically. To add Whisper, process the audio file before the Groq call in `listening.py`.
 - **Schema migrations**: `Base.metadata.create_all` only creates missing *tables*, not columns. When adding columns to existing tables, run `ALTER TABLE` manually.
 
