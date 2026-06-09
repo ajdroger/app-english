@@ -8,6 +8,7 @@ class VocabularyCard(Base):
     definition = Column(String, nullable=False)
     example = Column(String, nullable=False)
     level = Column(String, default="B1")
+    language = Column(String, default="english")
 
 class VocabularyProgress(Base):
     __tablename__ = "vocabulary_progress"
@@ -23,6 +24,7 @@ class GrammarExercise(Base):
     options = Column(String, nullable=False)  # JSON array
     correct = Column(Integer, nullable=False)
     explanation = Column(String, nullable=False)
+    language = Column(String, default="english")
 
 class UserStats(Base):
     __tablename__ = "user_stats"

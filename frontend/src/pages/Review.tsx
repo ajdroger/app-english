@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
+import { useLanguage } from '../context/LanguageContext'
 
 interface Card {
   id: number
@@ -14,6 +15,7 @@ type Section = 'learning' | 'unseen'
 
 export default function Review() {
   const [queue, setQueue] = useState<Card[]>([])
+  const { language } = useLanguage()
   const [sectionLabels, setSectionLabels] = useState<Section[]>([])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -23,7 +25,10 @@ export default function Review() {
   const [total, setTotal] = useState(0)
 
   useEffect(() => {
-    axios.get('/api/vocabulary/review').then(res => {
+    setLoading(true)
+    setIndex(0)
+    setDone(false)
+    axios.get(`/api/vocabulary/review?language=${language.code}`).then(res => {
       const { learning, unseen } = res.data
       const cards = [
         ...learning.map((c: Card) => c),
@@ -38,7 +43,7 @@ export default function Review() {
       setTotal(cards.length)
       setLoading(false)
     })
-  }, [])
+  }, [language.code])
 
   const current = queue[index]
   const currentSection = sectionLabels[index]

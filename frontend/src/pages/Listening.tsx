@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
 import { speak } from '../utils/speak'
+import { useLanguage } from '../context/LanguageContext'
 
 type Step = 'idle' | 'recording' | 'loading' | 'result'
 
@@ -52,6 +53,7 @@ const DIFFICULTIES = [
 ]
 
 export default function Listening() {
+  const { language } = useLanguage()
   const [phrases, setPhrases] = useState<string[]>(BASE_PHRASES)
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [step, setStep] = useState<Step>('idle')
@@ -67,7 +69,7 @@ export default function Listening() {
 
   const phrase = phrases[phraseIndex]
 
-  const speakPhrase = () => speak(phrase)
+  const speakPhrase = () => speak(phrase, language.ttsLang)
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -112,6 +114,7 @@ export default function Listening() {
         topic,
         difficulty: genDifficulty,
         count: 5,
+        language: language.code,
       })
       const newPhrases: string[] = res.data.phrases
       setPhrases(prev => [...prev, ...newPhrases])

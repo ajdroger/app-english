@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from groq import Groq
@@ -9,9 +9,10 @@ from app.models.models import GrammarExercise
 router = APIRouter(prefix="/api/grammar")
 groq = Groq()
 
+
 @router.get("/exercises")
-def get_exercises(db: Session = Depends(get_db)):
-    rows = db.query(GrammarExercise).all()
+def get_exercises(language: str = Query("english"), db: Session = Depends(get_db)):
+    rows = db.query(GrammarExercise).filter_by(language=language).all()
     return [
         {
             "id": r.id,
@@ -24,17 +25,20 @@ def get_exercises(db: Session = Depends(get_db)):
         for r in rows
     ]
 
+
 class GenerateIn(BaseModel):
     topic: str
+    language: str = "english"
+
 
 @router.post("/generate")
 def generate_exercise(data: GenerateIn, db: Session = Depends(get_db)):
     prompt = (
-        f"Generate a grammar exercise about \"{data.topic}\" for English learners. "
+        f"Generate a grammar exercise about \"{data.topic}\" for {data.language} learners. "
+        f"Write the question and all options in {data.language}. "
         "Create a fill-in-the-blank or choose-the-correct-form question. "
         "Provide 4 answer options (only one correct), the correct answer index (0-3), "
         "and a clear explanation of the grammar rule. "
-        "Make it challenging but realistic. "
         "Respond with JSON only, no markdown:\n"
         '{"topic":"...","question":"...","options":["...","...","...","..."],"correct":0,"explanation":"..."}'
     )
@@ -54,6 +58,7 @@ def generate_exercise(data: GenerateIn, db: Session = Depends(get_db)):
         options=json.dumps(ex["options"]),
         correct=ex["correct"],
         explanation=ex["explanation"],
+        language=data.language,
     )
     db.add(row)
     db.commit()

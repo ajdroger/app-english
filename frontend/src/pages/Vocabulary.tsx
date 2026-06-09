@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
+import { useLanguage } from '../context/LanguageContext'
 
 interface Card {
   id: number
@@ -19,6 +20,7 @@ const LEVELS = ['A2', 'B1', 'B2', 'C1', 'C2']
 const TOPICS = ['business', 'travel', 'technology', 'science', 'health', 'politics', 'arts', 'sports', 'environment', 'food', 'law', 'psychology', 'history', 'mathematics', 'literature']
 
 export default function Vocabulary() {
+  const { language } = useLanguage()
   const [cards, setCards] = useState<Card[]>([])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -32,8 +34,11 @@ export default function Vocabulary() {
   const [genResult, setGenResult] = useState<string | null>(null)
 
   useEffect(() => {
+    setLoading(true)
+    setIndex(0)
+    setFlipped(false)
     Promise.all([
-      axios.get('/api/vocabulary/cards'),
+      axios.get(`/api/vocabulary/cards?language=${language.code}`),
       axios.get('/api/vocabulary/progress'),
     ]).then(([cardsRes, progressRes]) => {
       setCards(cardsRes.data)
@@ -42,7 +47,7 @@ export default function Vocabulary() {
       setProgress(map)
       setLoading(false)
     })
-  }, [])
+  }, [language.code])
 
   const current = cards[index]
 
@@ -62,7 +67,7 @@ export default function Vocabulary() {
     setGenerating(true)
     setGenResult(null)
     try {
-      const res = await axios.post('/api/vocabulary/generate', { topic, level: genLevel, count: 10 })
+      const res = await axios.post('/api/vocabulary/generate', { topic, level: genLevel, count: 10, language: language.code })
       const { added, cards: newCards } = res.data
       if (added > 0) {
         setCards(prev => [...prev, ...newCards])

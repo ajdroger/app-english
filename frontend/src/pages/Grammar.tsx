@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
 import { speak } from '../utils/speak'
+import { useLanguage } from '../context/LanguageContext'
 
 interface Exercise {
   id: number
@@ -15,6 +16,7 @@ interface Exercise {
 const TOPICS = ['present perfect', 'conditionals', 'passive voice', 'modal verbs', 'reported speech', 'articles', 'prepositions', 'relative clauses', 'phrasal verbs', 'gerunds and infinitives']
 
 export default function Grammar() {
+  const { language } = useLanguage()
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
@@ -27,11 +29,14 @@ export default function Grammar() {
   const [genMsg, setGenMsg] = useState<string | null>(null)
 
   useEffect(() => {
-    axios.get('/api/grammar/exercises').then(res => {
+    setLoading(true)
+    setIndex(0)
+    setSelected(null)
+    axios.get(`/api/grammar/exercises?language=${language.code}`).then(res => {
       setExercises(res.data)
       setLoading(false)
     })
-  }, [])
+  }, [language.code])
 
   const current = exercises[index]
 
@@ -41,7 +46,7 @@ export default function Grammar() {
     const correct = i === current.correct
     setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }))
     awardXp(correct ? 'grammar_correct' : 'grammar_wrong')
-    speak(current.options[current.correct])
+    speak(current.options[current.correct], language.ttsLang)
   }
 
   const next = () => {
@@ -55,7 +60,7 @@ export default function Grammar() {
     setGenerating(true)
     setGenMsg(null)
     try {
-      const res = await axios.post('/api/grammar/generate', { topic })
+      const res = await axios.post('/api/grammar/generate', { topic, language: language.code })
       const ex: Exercise = res.data
       setExercises(prev => {
         const next = [...prev, ex]
@@ -132,7 +137,7 @@ export default function Grammar() {
             <p className="mt-3 text-lg font-medium text-gray-900 dark:text-white">{current.question}</p>
           </div>
           <button
-            onClick={() => speak(readableQuestion)}
+            onClick={() => speak(readableQuestion, language.ttsLang)}
             title="Listen to question"
             className="mt-1 shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 transition text-sm"
           >
@@ -161,7 +166,7 @@ export default function Grammar() {
                   </span>
                 </button>
                 <button
-                  onClick={() => speak(opt)}
+                  onClick={() => speak(opt, language.ttsLang)}
                   title="Listen"
                   className="shrink-0 p-2 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition"
                 >

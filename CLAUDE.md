@@ -25,32 +25,35 @@ Both servers must run simultaneously. Vite proxies all `/api/*` to `http://local
 ```
 english-app/
 ├── frontend/src/
-│   ├── App.tsx                  # BrowserRouter + nav (7 links) + ReviewBadge + StatsBar in header
+│   ├── App.tsx                  # BrowserRouter + nav (7 links) + ReviewBadge + StatsBar + LanguagePicker
+│   ├── context/
+│   │   └── LanguageContext.tsx  # Global language state (12 langs); persisted to localStorage('lingua_language')
+│   ├── utils/
+│   │   └── speak.ts             # Shared TTS helper; async voice loading + BCP-47 lang selection
 │   ├── components/
 │   │   └── StatsBar.tsx         # Streak 🔥 + XP ⭐ badges; exports awardXp() used by all pages
 │   └── pages/
-│       ├── Vocabulary.tsx       # Flashcard flip animation; marks known/learning → awards XP
-│       ├── Review.tsx           # Review queue: 'still learning' first, then unseen; completion screen
-│       ├── Grammar.tsx          # Multiple-choice quiz; 🔊 Listen on question + each option; correct answer read aloud after answering; awards XP
-│       ├── Listening.tsx        # Records audio → POST /api/listening/evaluate → score + feedback
-│       ├── Writing.tsx          # Writing prompts (15 built-in + AI-generated); POST /api/writing/evaluate
-│       │                        #   → score, grammar, vocabulary, fluency, improved version; awards XP
-│       ├── Conversation.tsx     # Chat UI with 4 scenario presets; awards XP per message sent
-│       └── Profile.tsx          # Stats dashboard: level card, streak, vocab by level, grammar accuracy
+│       ├── Vocabulary.tsx       # Flashcard flip; passes language.code to all API calls; reloads on change
+│       ├── Review.tsx           # Review queue filtered by language; reloads on language change
+│       ├── Grammar.tsx          # Multiple-choice quiz; 🔊 on question + options; passes language
+│       ├── Listening.tsx        # Records audio → evaluate; TTS uses language.ttsLang
+│       ├── Writing.tsx          # Writing prompts; passes language to evaluate + generate-prompt
+│       ├── Conversation.tsx     # Chat UI; resets on language change; passes language to backend
+│       └── Profile.tsx          # Stats dashboard: level, streak, vocab, grammar accuracy, writing stats
 │
 └── backend/app/
     ├── main.py                  # FastAPI app: DB init, seed, CORS, all routers registered here
     ├── database.py              # SQLAlchemy engine + SessionLocal + Base (SQLite)
     ├── models/models.py         # VocabularyCard, VocabularyProgress, GrammarExercise, UserStats
-    ├── data/seed.py             # 66 vocab cards (B1/B2/C1/C2) + 28 grammar exercises;
+    │                            #   VocabularyCard + GrammarExercise have a language column (default "english")
+    ├── data/seed.py             # 66 vocab cards (B1/B2/C1/C2) + 28 grammar exercises for English;
     │                            #   upserts by word/question — safe to re-run
     └── routers/
-        ├── vocabulary.py        # GET /cards, GET/POST /progress, GET /review
-        ├── grammar.py           # GET /api/grammar/exercises (options stored as JSON string in DB)
-        ├── listening.py         # POST /api/listening/evaluate — Groq Llama 3.3 70B
-        ├── writing.py           # POST /api/writing/evaluate — score + grammar/vocab/fluency feedback
-        │                        # POST /api/writing/generate-prompt — AI-generated prompt by topic/type/level
-        ├── conversation.py      # POST /api/conversation/chat — Groq with scenario system prompts
+        ├── vocabulary.py        # GET /cards?language=, GET/POST /progress, GET /review?language=
+        ├── grammar.py           # GET /api/grammar/exercises?language= (options stored as JSON string)
+        ├── listening.py         # POST /api/listening/evaluate; POST /api/listening/generate (language field)
+        ├── writing.py           # POST /api/writing/evaluate; POST /api/writing/generate-prompt (language field)
+        ├── conversation.py      # POST /api/conversation/chat — language field in ChatRequest
         └── stats.py             # GET /api/stats, POST /api/stats/activity
 ```
 
@@ -70,7 +73,8 @@ english-app/
 - **XP flow**: pages call `awardXp(action, bonus?)` from `StatsBar.tsx` → `POST /api/stats/activity` → `stats.py:XP` dict maps action to points. Streak is updated server-side on first activity of each calendar day.
 - **Level system**: 7 tiers (Beginner → Expert) in `stats.py:LEVELS` as `(min_xp, name, icon)` tuples.
 - **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
-- **Text-to-speech**: Grammar uses the browser's `SpeechSynthesisUtterance` API (no backend, no API key). `speak()` helper at the top of `Grammar.tsx` cancels any ongoing speech before starting a new one. `___` in questions is replaced with "blank" before reading.
+- **Multi-language**: `LanguageContext.tsx` holds the selected language (12 supported: English, Spanish, French, Italian, German, Portuguese, Russian, Japanese, Chinese, Arabic, Korean, Hindi). Each language has `{ code, label, flag, ttsLang }`. Persisted to `localStorage('lingua_language')`. All pages read `language` from context and pass `language.code` to backend APIs; TTS uses `language.ttsLang` (BCP-47). Only English has seed data — other languages rely on AI generation. Conversation resets on language change. The `LanguagePicker` dropdown in `App.tsx` shows flag + name for each language.
+- **Text-to-speech**: Shared `speak(text, ttsLang)` helper in `utils/speak.ts`. Uses `SpeechSynthesisUtterance` — no backend. Waits for `voiceschanged` event if voices aren't loaded yet (needed on Linux). `___` in Grammar questions is replaced with "blank" before reading.
 - **Listening**: no real STT — Groq evaluates pronunciation heuristically. To add Whisper, process the audio file before the Groq call in `listening.py`.
 - **Writing feedback**: `POST /api/writing/evaluate` sends the prompt + user text to Groq and returns `{ score, grammar, vocabulary, fluency, improved, tip }`. Writing is not persisted — stateless per submission. XP is awarded via `awardXp('writing_submit', score/10, score)` — the third argument is the raw score (0-100) stored in `writing_total_score` for average calculation.
 - **Writing prompts**: 15 built-in prompts split across 5 types (Descriptive, Opinion, Narrative, Formal, Informal). `POST /api/writing/generate-prompt` generates additional prompts by topic, type, and level; they live in React state only (not DB).

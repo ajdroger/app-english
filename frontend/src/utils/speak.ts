@@ -1,21 +1,20 @@
-export function speak(text: string) {
+export function speak(text: string, ttsLang = 'en-US') {
   const synth = window.speechSynthesis
   synth.cancel()
 
   const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'en-US'
+  u.lang = ttsLang
   u.rate = 0.9
 
   const doSpeak = () => {
     const voices = synth.getVoices()
-    const enVoice = voices.find(v => v.lang.startsWith('en-US'))
-      ?? voices.find(v => v.lang.startsWith('en'))
+    const voice = voices.find(v => v.lang === ttsLang)
+      ?? voices.find(v => v.lang.startsWith(ttsLang.split('-')[0]))
       ?? voices[0]
-    if (enVoice) u.voice = enVoice
+    if (voice) u.voice = voice
     synth.speak(u)
   }
 
-  // Voices may not be loaded yet on first call (common on Linux/Chromium)
   if (synth.getVoices().length > 0) {
     doSpeak()
   } else {

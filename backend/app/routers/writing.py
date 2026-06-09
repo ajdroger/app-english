@@ -10,12 +10,14 @@ client = Groq()
 class EvaluateIn(BaseModel):
     text: str
     prompt: str
+    language: str = "english"
 
 
 class GeneratePromptIn(BaseModel):
     topic: str = "general"
     type: str = "opinion"
     level: str = "B2"
+    language: str = "english"
 
 
 @router.post("/evaluate")
@@ -24,13 +26,13 @@ def evaluate(data: EvaluateIn):
         raise HTTPException(status_code=400, detail="Text is empty")
 
     system = (
-        "You are an expert English writing coach. "
+        f"You are an expert {data.language} writing coach. "
         "Evaluate the student's response concisely and constructively. "
         "Always respond with valid JSON only, no markdown."
     )
     user = (
         f"Writing prompt: \"{data.prompt}\"\n\n"
-        f"Student's response:\n\"{data.text}\"\n\n"
+        f"Student's response in {data.language}:\n\"{data.text}\"\n\n"
         "Evaluate and respond with JSON:\n"
         "{\n"
         '  "score": <0-100>,\n'
@@ -58,8 +60,9 @@ def evaluate(data: EvaluateIn):
 @router.post("/generate-prompt")
 def generate_prompt(data: GeneratePromptIn):
     user = (
-        f"Generate a writing prompt for an English learner at {data.level} level. "
+        f"Generate a writing prompt for a {data.language} learner at {data.level} level. "
         f"Type: {data.type}. Topic: {data.topic}. "
+        f"Write the prompt in {data.language}. "
         "The prompt should be clear, engaging, and achievable in 3–8 sentences. "
         "Respond with JSON only, no markdown:\n"
         '{"prompt": "...", "hint": "<optional hint about structure or vocabulary to use>"}'

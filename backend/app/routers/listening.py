@@ -46,13 +46,14 @@ class GenerateIn(BaseModel):
     topic: str
     difficulty: str = "intermediate"
     count: int = 5
+    language: str = "english"
 
 @router.post("/generate")
 def generate_phrases(data: GenerateIn):
     prompt = (
-        f"Generate {data.count} English phrases or sentences on the topic \"{data.topic}\" "
+        f"Generate {data.count} {data.language} phrases or sentences on the topic \"{data.topic}\" "
         f"at {data.difficulty} difficulty level. "
-        "They should be natural, authentic English perfect for pronunciation practice. "
+        f"They should be natural, authentic {data.language} perfect for pronunciation practice. "
         "Vary the length and structure. Avoid clichés. "
         "Respond with JSON only, no markdown:\n"
         '{"phrases":["...","...","...","...","..."]}'

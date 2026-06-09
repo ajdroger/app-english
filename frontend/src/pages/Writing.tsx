@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { awardXp } from '../components/StatsBar'
+import { useLanguage } from '../context/LanguageContext'
 
 interface Feedback {
   score: number
@@ -48,6 +49,7 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 export default function Writing() {
+  const { language } = useLanguage()
   const [prompts, setPrompts] = useState<Prompt[]>(BASE_PROMPTS)
   const [promptIndex, setPromptIndex] = useState(0)
   const [text, setText] = useState('')
@@ -74,6 +76,7 @@ export default function Writing() {
       const res = await axios.post('/api/writing/evaluate', {
         text: text.trim(),
         prompt: current.text,
+        language: language.code,
       })
       setFeedback(res.data)
       awardXp('writing_submit', Math.round(res.data.score / 10), res.data.score)
@@ -100,6 +103,7 @@ export default function Writing() {
         topic,
         type: genType,
         level: genLevel,
+        language: language.code,
       })
       const newPrompt: Prompt = {
         text: res.data.prompt,
