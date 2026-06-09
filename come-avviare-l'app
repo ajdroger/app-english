@@ -1,0 +1,287 @@
+================================================================================
+  LINGUAAPP — GUIDA COMPLETA ALL'INSTALLAZIONE E ALL'AVVIO
+================================================================================
+
+Questa app è composta da due parti:
+  - Backend  (Python/FastAPI) → gira su http://localhost:8000
+  - Frontend (React/Vite)     → gira su http://localhost:5173
+
+Entrambi devono essere attivi contemporaneamente.
+
+────────────────────────────────────────────────────────────────────────────────
+  PREREQUISITI COMUNI (stessa procedura su ogni OS)
+────────────────────────────────────────────────────────────────────────────────
+
+1. GROQ API KEY (obbligatoria per l'AI)
+   - Vai su https://console.groq.com
+   - Registrati gratis → crea una API Key
+   - Copiala: ti servirà tra poco
+
+2. Clona il repository (se non l'hai già)
+   git clone https://github.com/ajdroger/app-english.git
+   cd app-english/english-app
+
+================================================================================
+  LINUX (Debian / Ubuntu / Parrot OS / Mint)
+================================================================================
+
+--- INSTALLAZIONE (una tantum) ---
+
+  # Dipendenze di sistema
+  sudo apt update
+  sudo apt install python3 python3-venv nodejs npm git
+
+  # TTS — voci per i bottoni 🔊 (obbligatorio su Linux)
+  sudo apt install espeak-ng speech-dispatcher
+  systemctl --user start speech-dispatcher
+  # (si avvia automaticamente ad ogni login grazie al socket systemd)
+
+  # Backend — crea l'ambiente virtuale e installa i pacchetti
+  cd english-app/backend
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install -r requirements.txt
+
+  # Configura la API Key
+  cp .env.example .env
+  # apri .env con un editor e scrivi: GROQ_API_KEY=gsk_...
+
+  # Frontend — installa i pacchetti Node
+  cd ../frontend
+  npm install
+
+--- AVVIO ---
+
+  Apri DUE terminali:
+
+  Terminale 1 — Backend:
+    cd ~/Scrivania/progetti/english-app/backend
+    source venv/bin/activate
+    uvicorn app.main:app --reload
+
+  Terminale 2 — Frontend:
+    cd ~/Scrivania/progetti/english-app/frontend
+    npm run dev
+
+  Apri Firefox/Chrome su: http://localhost:5173
+
+--- INSTALLAZIONE COME APP (PWA) su Linux ---
+
+  In Chrome/Chromium: clicca l'icona 💻 nella barra degli indirizzi → "Installa app"
+  In Firefox: Menu → "Installa questa pagina come app" (Firefox 125+)
+
+================================================================================
+  WINDOWS 10 / 11
+================================================================================
+
+--- INSTALLAZIONE (una tantum) ---
+
+  1. Installa Python 3.11+
+     https://www.python.org/downloads/
+     IMPORTANTE: spunta "Add Python to PATH" durante l'installazione
+
+  2. Installa Node.js 20+
+     https://nodejs.org/  → scarica il file .msi e installa
+
+  3. Installa Git
+     https://git-scm.com/download/win
+
+  4. Apri PowerShell (o Git Bash) e vai nella cartella del progetto:
+     cd C:\Users\TuoNome\percorso\english-app
+
+  5. Backend:
+     cd backend
+     python -m venv venv
+     venv\Scripts\activate
+     pip install -r requirements.txt
+
+     # Crea il file .env (copia .env.example e rinominalo .env)
+     # Aprilo con Notepad e scrivi: GROQ_API_KEY=gsk_...
+
+  6. Frontend:
+     cd ..\frontend
+     npm install
+
+--- AVVIO ---
+
+  Apri DUE finestre PowerShell:
+
+  Finestra 1 — Backend:
+    cd percorso\english-app\backend
+    venv\Scripts\activate
+    uvicorn app.main:app --reload
+
+  Finestra 2 — Frontend:
+    cd percorso\english-app\frontend
+    npm run dev
+
+  Apri Chrome/Edge su: http://localhost:5173
+
+  NOTA: Il TTS (🔊) su Windows funziona di default — Windows ha voci
+  integrate. Nessun pacchetto extra necessario.
+
+--- INSTALLAZIONE COME APP (PWA) su Windows ---
+
+  In Chrome: clicca l'icona 💻 nella barra degli indirizzi → "Installa LinguaApp"
+  In Edge: clicca ··· → App → "Installa questo sito come app"
+  L'app apparirà nel menu Start e sul desktop come applicazione normale.
+
+================================================================================
+  macOS
+================================================================================
+
+--- INSTALLAZIONE (una tantum) ---
+
+  1. Installa Homebrew (se non lo hai):
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  2. Installa Python e Node:
+     brew install python node git
+
+  3. Backend:
+     cd english-app/backend
+     python3 -m venv venv
+     source venv/bin/activate
+     pip install -r requirements.txt
+
+     cp .env.example .env
+     # apri .env e scrivi: GROQ_API_KEY=gsk_...
+
+  4. Frontend:
+     cd ../frontend
+     npm install
+
+--- AVVIO ---
+
+  Apri DUE finestre di Terminale:
+
+  Terminale 1 — Backend:
+    cd percorso/english-app/backend
+    source venv/bin/activate
+    uvicorn app.main:app --reload
+
+  Terminale 2 — Frontend:
+    cd percorso/english-app/frontend
+    npm run dev
+
+  Apri Safari o Chrome su: http://localhost:5173
+
+  NOTA: Il TTS (🔊) funziona di default su macOS — ha voci di sistema integrate.
+
+--- INSTALLAZIONE COME APP (PWA) su macOS ---
+
+  In Chrome: clicca l'icona 💻 nella barra degli indirizzi → "Installa LinguaApp"
+  In Safari: menu Condividi → "Aggiungi alla Scrivania"
+
+================================================================================
+  ANDROID (installazione PWA)
+================================================================================
+
+  Non serve installare backend/frontend sul telefono.
+  Il backend gira sul PC — il telefono si connette via rete locale.
+
+  Prerequisiti:
+  - Il PC deve avere l'app già avviata (backend + frontend attivi)
+  - PC e telefono devono essere sulla stessa rete Wi-Fi
+
+  Passi:
+
+  1. Trova l'IP del tuo PC sulla rete locale:
+     Linux/macOS: ip a | grep "inet " oppure hostname -I
+     Windows:     ipconfig  (cerca "Indirizzo IPv4", es. 192.168.1.100)
+
+  2. Avvia il frontend con accesso di rete (invece di npm run dev):
+     npm run dev -- --host
+     Vedrai: "Network: http://192.168.1.100:5173"
+
+  3. Avvia anche il backend con host aperto:
+     uvicorn app.main:app --reload --host 0.0.0.0
+
+  4. Sul telefono Android, apri Chrome e vai su:
+     http://192.168.1.100:5173
+
+  5. Installa come app:
+     Tocca i tre puntini (⋮) → "Aggiungi a schermata Home"
+     oppure Chrome mostra un banner "Installa app" automaticamente
+
+  L'app si apre come app nativa, senza barra del browser.
+
+  NOTA: Il TTS su Android dipende dal motore Text-to-Speech installato
+  (Google TTS è il più comune). Attivalo in Impostazioni → Accessibilità → TTS.
+
+================================================================================
+  iOS / iPadOS (iPhone e iPad)
+================================================================================
+
+  Stessa logica di Android — il backend gira sul PC, il dispositivo
+  si connette via Wi-Fi.
+
+  Passi:
+
+  1. Avvia backend e frontend sul PC con --host (vedi sezione Android)
+
+  2. Su iPhone/iPad, apri Safari (non Chrome — Safari è l'unico browser
+     che supporta l'installazione PWA su iOS) e vai su:
+     http://192.168.1.100:5173
+
+  3. Installa come app:
+     Tocca il bottone Condividi (□↑) → "Aggiungi alla schermata Home"
+     Dai un nome e tocca "Aggiungi"
+
+  L'app appare nella home come un'icona normale.
+
+  NOTA: Il TTS su iOS usa le voci di sistema (Siri Voices / eSpeak).
+  Funziona di default. Per aggiungere voci extra:
+  Impostazioni → Accessibilità → Contenuto letto ad alta voce → Voci
+
+================================================================================
+  RISOLUZIONE PROBLEMI FREQUENTI
+================================================================================
+
+  [🔊 Il TTS non funziona su Linux]
+    sudo apt install espeak-ng speech-dispatcher
+    systemctl --user start speech-dispatcher
+    Poi riavvia Firefox.
+
+  [Errore "GROQ_API_KEY not found"]
+    Controlla che il file backend/.env esista e contenga:
+    GROQ_API_KEY=gsk_...  (senza spazi)
+
+  [Frontend non riesce a contattare il backend]
+    Assicurati che il backend sia avviato su :8000.
+    Il frontend in dev proxies automaticamente /api → localhost:8000.
+
+  [Porta già in uso]
+    Backend: usa --port 8001 e aggiorna vite.config.ts (proxy target)
+    Frontend: usa --port 5174
+
+  [Voce TTS sbagliata / lingua non riconosciuta]
+    Installa voci aggiuntive per la lingua scelta:
+    Linux:   sudo apt install espeak-ng-data  (contiene tutte le lingue)
+    Windows: Impostazioni → Ora e lingua → Voce → Aggiungi voci
+    macOS:   Preferenze di Sistema → Accessibilità → Contenuto letto
+    Android: Impostazioni → Gestione generale → Lingua → TTS
+
+  [node_modules mancante / errori npm]
+    cd english-app/frontend && npm install
+
+  [venv non trovato]
+    cd english-app/backend
+    python3 -m venv venv
+    source venv/bin/activate  (Linux/macOS)
+    venv\Scripts\activate     (Windows)
+    pip install -r requirements.txt
+
+================================================================================
+  AVVIO RAPIDO (se hai già tutto installato — Linux)
+================================================================================
+
+  Terminale 1:
+    cd ~/Scrivania/progetti/english-app/backend && source venv/bin/activate && uvicorn app.main:app --reload
+
+  Terminale 2:
+    cd ~/Scrivania/progetti/english-app/frontend && npm run dev
+
+  Browser: http://localhost:5173
+
+================================================================================
