@@ -85,3 +85,14 @@ english-app/
 GROQ_API_KEY=gsk_...
 ```
 Free key at console.groq.com. `.env` is gitignored — copy `.env.example` as a template.
+
+## Linux TTS setup
+
+The 🔊 buttons in Grammar and Listening use the browser's Web Speech API. On Linux this requires system packages — without them `speechSynthesis.getVoices()` returns empty and nothing plays.
+
+```bash
+sudo apt install espeak-ng speech-dispatcher
+systemctl --user start speech-dispatcher   # starts now; auto-starts on login via systemd socket
+```
+
+Tested on Parrot OS (Debian-based) with Firefox. `speech-dispatcher` acts as the bridge between Firefox and `espeak-ng`. The socket activation symlink created during install means no manual `systemctl --user enable` is needed.
