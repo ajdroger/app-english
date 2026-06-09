@@ -14,6 +14,21 @@ class ProgressIn(BaseModel):
 def get_cards(db: Session = Depends(get_db)):
     return db.query(VocabularyCard).all()
 
+@router.get("/review")
+def get_review_cards(db: Session = Depends(get_db)):
+    """Returns cards to review: 'still learning' first, then unseen."""
+    all_cards = db.query(VocabularyCard).all()
+    progress = {r.card_id: r.known for r in db.query(VocabularyProgress).all()}
+
+    learning = [c for c in all_cards if progress.get(c.id) is False]
+    unseen   = [c for c in all_cards if c.id not in progress]
+
+    return {
+        "learning": [c.__dict__ for c in learning],
+        "unseen":   [c.__dict__ for c in unseen],
+        "total":    len(learning) + len(unseen),
+    }
+
 @router.get("/progress")
 def get_progress(db: Session = Depends(get_db)):
     return db.query(VocabularyProgress).all()
