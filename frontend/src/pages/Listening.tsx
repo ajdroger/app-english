@@ -11,11 +11,40 @@ interface Feedback {
 }
 
 const PHRASES = [
+  // Everyday conversation
   "The weather is beautiful today.",
   "I would like to learn English.",
+  "Could you please repeat that more slowly?",
+  "Excuse me, where is the nearest bus stop?",
+  "I have been studying English for two years.",
+  "What time does the meeting start tomorrow?",
+  "I am really enjoying this course so far.",
+  "Can I have the bill, please?",
+  "Would you mind opening the window?",
+  "I am looking forward to the weekend.",
+  // Tongue twisters
   "She sells seashells by the seashore.",
   "How much wood would a woodchuck chuck?",
+  "Peter Piper picked a peck of pickled peppers.",
+  "Red lorry, yellow lorry.",
+  "Unique New York, unique New York.",
+  "The sixth sick sheikh's sixth sheep is sick.",
+  "Betty Botter bought some butter.",
+  // Complex sentences
   "The quick brown fox jumps over the lazy dog.",
+  "Despite the heavy rain, the match continued as planned.",
+  "She had already left by the time we arrived.",
+  "The more you practise, the more confident you will become.",
+  "It is not the destination but the journey that matters.",
+  "If you had studied harder, you would have passed the exam.",
+  "The research suggests that sleep is essential for memory.",
+  "Although it was expensive, the experience was worth every penny.",
+  // Pronunciation challenges (th, r, v/w)
+  "There are thirty-three trees in the park.",
+  "The weather in the north is rather rough.",
+  "Whether the weather is warm or whether it is cold.",
+  "Very few people believe every word they read online.",
+  "Would you like a glass of water or a bottle of wine?",
 ]
 
 export default function Listening() {

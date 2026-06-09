@@ -44,6 +44,38 @@ VOCAB = [
     ("perfidious", "Deceitful and untrustworthy", "The perfidious minister leaked secrets to the enemy.", "C2"),
     ("loquacious", "Tending to talk a great deal; talkative", "My loquacious neighbour can chat for hours.", "C2"),
     ("equanimity", "Calmness and composure, especially in a difficult situation", "She faced the crisis with remarkable equanimity.", "C2"),
+    ("sycophant", "A person who flatters powerful people to gain advantage", "The boss surrounded himself with sycophants who never challenged him.", "C2"),
+    ("insidious", "Proceeding in a gradual, subtle way but with harmful effects", "The insidious spread of misinformation is hard to combat.", "C2"),
+    ("recalcitrant", "Having an obstinately uncooperative attitude", "The recalcitrant student refused to follow any instructions.", "C2"),
+    ("mendacious", "Not telling the truth; lying", "The mendacious report contained dozens of fabricated figures.", "C2"),
+    ("perspicacious", "Having a ready insight; shrewd", "A perspicacious investor spotted the opportunity before anyone else.", "C2"),
+    # B1 — new
+    ("apologise", "To express regret for something one has done wrong", "He apologised for arriving late to the meeting.", "B1"),
+    ("consider", "To think carefully about something before deciding", "Consider all your options before making a decision.", "B1"),
+    ("require", "To need something for a particular purpose", "This job requires excellent communication skills.", "B1"),
+    ("achieve", "To successfully reach a desired objective", "Hard work is the key to achieving your goals.", "B1"),
+    ("describe", "To give a detailed account of something in words", "Can you describe what happened?", "B1"),
+    ("confident", "Feeling certain about one's abilities or a situation", "She felt confident before the presentation.", "B1"),
+    ("prefer", "To like one thing better than another", "I prefer tea to coffee in the morning.", "B1"),
+    ("ordinary", "With no special or distinctive features; normal", "It was just an ordinary day until the phone rang.", "B1"),
+    # B2 — new
+    ("inevitable", "Certain to happen; unavoidable", "Change is inevitable — you cannot stop it.", "B2"),
+    ("acknowledge", "To accept or admit the existence of something", "He acknowledged his mistake in front of the team.", "B2"),
+    ("contrast", "To differ strikingly from something else", "His calm tone contrasted sharply with his angry words.", "B2"),
+    ("coherent", "Logical and consistent; easy to understand", "She gave a coherent explanation of the problem.", "B2"),
+    ("skeptical", "Not easily convinced; having doubts", "Scientists are skeptical until the evidence is strong.", "B2"),
+    ("elaborate", "Involving many careful details; to explain in more detail", "Could you elaborate on your last point?", "B2"),
+    ("anticipate", "To expect or predict something", "We did not anticipate such a large turnout.", "B2"),
+    ("compromise", "An agreement reached by mutual concession", "Both sides had to compromise to reach a deal.", "B2"),
+    # C1 — new
+    ("exacerbate", "To make a problem or bad situation worse", "Stress can exacerbate many physical health conditions.", "C1"),
+    ("nuance", "A subtle difference in meaning or expression", "Good translation requires sensitivity to nuance.", "C1"),
+    ("mitigate", "To lessen the severity or impact of something", "Trees help mitigate the effects of urban heat.", "C1"),
+    ("paradigm", "A typical example or pattern; a framework", "The internet created a new paradigm for communication.", "C1"),
+    ("consolidate", "To make something stronger or more solid; to combine", "The merger will consolidate the two companies into one.", "C1"),
+    ("redundant", "No longer needed; using more words than necessary", "After the restructuring, fifty roles were made redundant.", "C1"),
+    ("arbitrary", "Based on random choice rather than reason", "The deadline felt completely arbitrary.", "C1"),
+    ("empirical", "Based on observation or experiment rather than theory", "We need empirical evidence, not just assumptions.", "C1"),
 ]
 
 GRAMMAR = [
