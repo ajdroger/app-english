@@ -25,29 +25,32 @@ Both servers must run simultaneously. Vite proxies all `/api/*` to `http://local
 
 ```
 multi-learning-language-app/
+├── README.md                   # GitHub project page
 ├── come-avviare-l'app          # Full setup guide: Linux/Windows/macOS/Android/iOS
 ├── frontend/
 │   ├── index.html              # PWA meta tags (theme-color, apple-mobile-web-app-capable, manifest)
 │   ├── vite.config.ts          # Vite + VitePWA plugin (Workbox, manifest, icons)
 │   ├── public/                 # PWA icons: icon-72 to icon-512, apple-touch-icon, favicon
 │   └── src/
-│       ├── App.tsx             # BrowserRouter + nav (7 links) + ReviewBadge + StatsBar + LanguagePicker
+│       ├── App.tsx             # BrowserRouter + two-row nav + dual LanguagePicker + StatsBar
 │       ├── main.tsx            # LanguageProvider wrapper + registerSW (vite-plugin-pwa)
 │       ├── vite-env.d.ts       # /// <reference types="vite-plugin-pwa/client" />
 │       ├── context/
-│       │   └── LanguageContext.tsx  # Global language state (12 langs); persisted to localStorage('lingua_language')
+│       │   └── LanguageContext.tsx  # nativeLanguage + targetLanguage state (12 langs each);
+│       │                            #   nativeLanguage auto-detected from browser locale;
+│       │                            #   persisted to localStorage('lingua_native' / 'lingua_language')
 │       ├── utils/
 │       │   └── speak.ts            # Shared TTS helper; async voice loading + BCP-47 lang selection
 │       ├── components/
 │       │   └── StatsBar.tsx        # Streak 🔥 + XP ⭐ badges; exports awardXp() used by all pages
 │       └── pages/
-│           ├── Vocabulary.tsx      # Flashcard flip; passes language.code to all API calls; reloads on change
-│           ├── Review.tsx          # Review queue filtered by language; reloads on language change
-│           ├── Grammar.tsx         # Multiple-choice quiz; 🔊 on question + options; passes language
-│           ├── Listening.tsx       # Records audio → evaluate; TTS uses language.ttsLang
-│           ├── Writing.tsx         # Writing prompts (15 built-in + AI-gen); evaluate → score/grammar/vocab/fluency
-│           ├── Conversation.tsx    # Chat UI with 4 scenario presets; resets on language change
-│           └── Profile.tsx         # Stats dashboard: level, streak, vocab, grammar, writing stats
+│           ├── Vocabulary.tsx      # Flashcard flip; auto-opens generate panel when no cards for language
+│           ├── Review.tsx          # Review queue filtered by language; distinguishes "no cards" from "all known"
+│           ├── Grammar.tsx         # Multiple-choice quiz; 🔊 TTS; auto-opens generate when no exercises
+│           ├── Listening.tsx       # English: hardcoded phrases; other languages: auto-generates on switch
+│           ├── Writing.tsx         # EN+EN: 10 built-in prompts; other combos: auto-generates 3 AI prompts
+│           ├── Conversation.tsx    # Chat with 4 scenario presets; resets on language change
+│           └── Profile.tsx         # Stats: level, streak, vocab, grammar accuracy, writing stats
 │
 └── backend/app/
     ├── main.py                 # FastAPI app: DB init, seed, CORS, all routers registered here
@@ -57,11 +60,14 @@ multi-learning-language-app/
     ├── data/seed.py            # 66 vocab cards (B1/B2/C1/C2) + 28 grammar exercises for English only;
     │                           #   upserts by word/question — safe to re-run
     └── routers/
-        ├── vocabulary.py       # GET /cards?language=, GET/POST /progress, GET /review?language=
-        ├── grammar.py          # GET /api/grammar/exercises?language= (options as JSON string in DB)
-        ├── listening.py        # POST /api/listening/evaluate; POST /api/listening/generate (language field)
-        ├── writing.py          # POST /api/writing/evaluate; POST /api/writing/generate-prompt (language field)
-        ├── conversation.py     # POST /api/conversation/chat — language field in ChatRequest
+        ├── vocabulary.py       # GET /cards?language=, GET /review?language=, POST /progress
+        │                       # POST /generate — accepts language + native_language
+        ├── grammar.py          # GET /exercises?language=; POST /generate — native_language for explanations
+        ├── listening.py        # POST /evaluate (target_language + native_language as Form fields)
+        │                       # POST /generate — phrases in target_language only
+        ├── writing.py          # POST /evaluate — feedback in native_language
+        │                       # POST /generate-prompt — prompt text in native_language
+        ├── conversation.py     # POST /chat — corrections/hints delivered in native_language
         └── stats.py            # GET /api/stats, POST /api/stats/activity
 ```
 
@@ -76,21 +82,26 @@ multi-learning-language-app/
 
 ## Key design decisions
 
-- **App name**: LinguaApp (was "english-app"). Multi-language app for learning any of 12 languages.
-- **AI provider**: Groq SDK, model `llama-3.3-70b-versatile`. Change the model string in `conversation.py` and `listening.py` to swap models.
-- **Multi-language**: `LanguageContext.tsx` holds the selected language (12 supported: English, Spanish, French, Italian, German, Portuguese, Russian, Japanese, Chinese, Arabic, Korean, Hindi). Each language has `{ code, label, flag, ttsLang }`. Persisted to `localStorage('lingua_language')`. All pages read `language` from context and pass `language.code` to backend APIs; TTS uses `language.ttsLang` (BCP-47). Only English has seed data — other languages rely on AI generation. Conversation resets on language change. `LanguagePicker` dropdown in `App.tsx` shows flag + name.
-- **PWA**: configured via `vite-plugin-pwa` in `vite.config.ts`. Workbox service worker with `autoUpdate` strategy. `NetworkFirst` for all `/api/*` routes. Icons from 72×72 to 512×512 in `frontend/public/`. `registerSW` imported in `main.tsx`. Installable on Android (Chrome), iOS (Safari), Windows/macOS (Chrome/Edge), Linux (Chrome/Chromium).
-- **Review queue**: `GET /api/vocabulary/review?language=` returns `{ learning, unseen, total }`. "Still learning" (known=False) cards come first. `ReviewBadge` in `App.tsx` shows a red pill with the count.
-- **XP flow**: pages call `awardXp(action, bonus=0, score=0)` from `StatsBar.tsx` → `POST /api/stats/activity` → `stats.py:XP` dict maps action to points. Streak updated server-side on first activity of each calendar day.
-- **Level system**: 7 tiers (Beginner → Expert) in `stats.py:LEVELS` as `(min_xp, name, icon)` tuples.
-- **Grammar options**: stored as a JSON string (SQLite has no array type); deserialized in `grammar.py` before returning to the client.
-- **Text-to-speech**: shared `speak(text, ttsLang)` helper in `utils/speak.ts`. Uses `SpeechSynthesisUtterance` — no backend, no API key. Waits for `voiceschanged` event if voices aren't loaded yet (required on Linux). `___` in Grammar questions replaced with "blank" before reading.
-- **Listening**: no real STT — Groq evaluates pronunciation heuristically from audio metadata + context. To add real STT, run Whisper on the audio file in `listening.py` before the Groq call.
-- **Writing feedback**: `POST /api/writing/evaluate` returns `{ score, grammar, vocabulary, fluency, improved, tip }`. Stateless — nothing persisted per submission. XP via `awardXp('writing_submit', score/10, score)` — third arg stored as raw score for average calculation.
-- **Writing prompts**: 15 built-in across 5 types (Descriptive, Opinion, Narrative, Formal, Informal). AI-generated prompts via `POST /api/writing/generate-prompt` live in React state only (not saved to DB).
-- **Writing stats in Profile**: `writing_submissions` + `writing_total_score` in `UserStats` (added via ALTER TABLE). `GET /api/stats` returns `writing: { submissions, avg_score }`. Profile shows stat card + section with count and average score bar.
-- **awardXp signature**: `awardXp(action, bonus=0, score=0)` — `score` is only used by `writing_submit` for tracking; all other actions ignore it.
-- **Schema migrations**: `Base.metadata.create_all` only creates missing *tables*, not columns. When adding columns to existing tables, run `ALTER TABLE` manually.
+- **App name**: LinguaApp. Multi-language learning app for 12 languages. GitHub repo: `ajdroger/multi-learning-language-app`.
+- **AI provider**: Groq SDK, model `llama-3.3-70b-versatile`. Free API. Change model string in any router to swap.
+- **Dual-language system**: Two separate concepts in `LanguageContext.tsx`:
+  - `nativeLanguage` — the user's mother tongue (auto-detected from `navigator.language`, saved to `localStorage('lingua_native')`). Used for: vocabulary definitions, grammar explanations, writing prompts, AI feedback, conversation corrections.
+  - `language` (targetLanguage) — the language being learned (saved to `localStorage('lingua_language')`). Used for: vocabulary words, grammar questions/options, listening phrases, writing practice, conversation.
+  - All AI endpoints accept both `language` and `native_language` parameters.
+- **Navbar**: two-row layout. Top: logo | `[nativeLang ▾] → [targetLang ▾]` | stats. Bottom: scrollable nav links.
+- **Listening**: uses hardcoded English phrases only when target = English. For all other target languages, auto-generates 8 starter phrases via AI on language switch. Phrases are in target language only.
+- **Writing**: uses 10 built-in English prompts only when both target = English and native = English. For all other combinations, auto-generates 3 starter prompts (descriptive, opinion, narrative) in native_language. User writes in target language; feedback is in native_language.
+- **PWA**: `vite-plugin-pwa` + Workbox; `NetworkFirst` for `/api/*`; icons 72–512px; `registerSW` in `main.tsx`. Installable on Android/iOS/Windows/macOS/Linux.
+- **Review queue**: `GET /api/vocabulary/review?language=` returns `{ learning, unseen, total }`. "Still learning" (known=False) first. `ReviewBadge` in `App.tsx` shows count per language. Review page distinguishes "no cards at all" (→ link to Vocabulary) from "all cards known" (🎉).
+- **XP flow**: `awardXp(action, bonus=0, score=0)` in `StatsBar.tsx` → `POST /api/stats/activity` → `stats.py:XP`. Streak updated server-side on first activity of each calendar day. XP is global (not per language).
+- **Level system**: 7 tiers (Beginner → Expert) as `(min_xp, name, icon)` in `stats.py:LEVELS`.
+- **Grammar options**: stored as JSON string in SQLite (no array type); deserialized in `grammar.py`.
+- **TTS**: shared `speak(text, ttsLang)` in `utils/speak.ts`. Waits for `voiceschanged` if voices not yet loaded (Linux). `___` in Grammar questions replaced with "blank".
+- **Listening evaluate**: no real STT — Groq evaluates heuristically. Add Whisper in `listening.py` for real transcription.
+- **Writing stats**: `writing_submissions` + `writing_total_score` in `UserStats` (added via ALTER TABLE). `GET /api/stats` returns `writing: { submissions, avg_score }`.
+- **awardXp signature**: `awardXp(action, bonus=0, score=0)` — `score` only used by `writing_submit`.
+- **Schema migrations**: `create_all` only adds missing *tables*, not columns. New columns need manual `ALTER TABLE`.
+- **Seed data**: English only (66 vocab + 28 grammar). All other languages rely on AI generation.
 
 ## Environment
 
@@ -102,19 +113,24 @@ Free key at console.groq.com. `.env` is gitignored — copy `.env.example` as a 
 
 ## Linux TTS setup
 
-The 🔊 buttons use the browser's Web Speech API. On Linux, `speechSynthesis.getVoices()` returns empty without system TTS packages — nothing plays.
+The 🔊 buttons use the browser's Web Speech API. On Linux, `speechSynthesis.getVoices()` returns empty without system TTS packages.
 
 ```bash
 sudo apt install espeak-ng speech-dispatcher
-systemctl --user start speech-dispatcher   # starts now; auto-starts on login via systemd socket
+systemctl --user start speech-dispatcher   # auto-starts on login via systemd socket
+sudo apt install espeak-ng-data            # all language voices
 ```
 
-Tested on Parrot OS (Debian-based) with Firefox. `speech-dispatcher` bridges Firefox ↔ `espeak-ng`. Socket activation is set up during install — no manual `systemctl --user enable` needed. Restart Firefox after installing.
+Tested on Parrot OS (Debian-based) with Firefox. Restart Firefox after installing.
 
 ## PWA installation per platform
 
-- **Android**: Chrome → ⋮ → "Add to Home screen" (or install banner)
-- **iOS/iPad**: Safari only → Share → "Add to Home Screen"
-- **Windows**: Chrome/Edge → install icon in address bar
-- **Linux**: Chrome/Chromium → install icon in address bar
-- **Mobile (LAN)**: run `npm run dev -- --host` + `uvicorn ... --host 0.0.0.0`, open `http://<PC-IP>:5173` on the device
+| Platform | Browser | How |
+|---|---|---|
+| Android | Chrome | ⋮ → "Add to Home screen" |
+| iOS / iPad | Safari only | Share → "Add to Home Screen" |
+| Windows | Chrome / Edge | Install icon in address bar |
+| macOS | Chrome | Install icon in address bar |
+| Linux | Chrome / Chromium | Install icon in address bar |
+
+Mobile LAN access: `npm run dev -- --host` + `uvicorn ... --host 0.0.0.0`, then open `http://<PC-IP>:5173`.

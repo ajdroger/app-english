@@ -18,8 +18,8 @@ Entrambi devono essere attivi contemporaneamente.
    - Copiala: ti servirà tra poco
 
 2. Clona il repository (se non l'hai già)
-   git clone https://github.com/ajdroger/app-english.git
-   cd app-english/multi-learning-language-app
+   git clone https://github.com/ajdroger/multi-learning-language-app.git
+   cd multi-learning-language-app
 
 ================================================================================
   LINUX (Debian / Ubuntu / Parrot OS / Mint)
@@ -265,8 +265,9 @@ Entrambi devono essere attivi contemporaneamente.
   [node_modules mancante / errori npm]
     cd multi-learning-language-app/frontend && npm install
 
-  [venv non trovato]
+  [venv non trovato o rotto]
     cd multi-learning-language-app/backend
+    rm -rf venv
     python3 -m venv venv
     source venv/bin/activate  (Linux/macOS)
     venv\Scripts\activate     (Windows)
