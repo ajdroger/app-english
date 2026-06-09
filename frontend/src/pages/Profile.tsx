@@ -10,6 +10,7 @@ interface Stats {
   vocabulary: { known: number; seen: number; total: number; by_level: Record<string, { total: number; known: number }> }
   conversations: number
   listening_attempts: number
+  writing: { submissions: number; avg_score: number }
 }
 
 function ProgressBar({ value, max, color = 'bg-indigo-500' }: { value: number; max: number; color?: string }) {
@@ -89,6 +90,7 @@ export default function Profile() {
         <StatCard icon="📚" label="Words known" value={vocabulary.known} sub={`of ${vocabulary.total} total`} />
         <StatCard icon="✏️" label="Grammar accuracy" value={`${grammar.accuracy}%`} sub={`${grammar.correct}/${grammar.total} correct`} />
         <StatCard icon="💬" label="Messages sent" value={stats.conversations} sub={`${stats.listening_attempts} listening attempts`} />
+        <StatCard icon="✍️" label="Writing submissions" value={stats.writing.submissions} sub={stats.writing.submissions > 0 ? `Avg score: ${stats.writing.avg_score}/100` : 'No submissions yet'} />
       </div>
 
       {/* Vocabulary by level */}
@@ -128,6 +130,34 @@ export default function Profile() {
               <span className="font-semibold text-red-500">{grammar.total - grammar.correct}</span>
             </div>
             <ProgressBar value={grammar.total - grammar.correct} max={grammar.total} color="bg-red-400" />
+          </div>
+        )}
+      </div>
+
+      {/* Writing breakdown */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+        <h2 className="font-semibold text-gray-800 dark:text-gray-100 mb-5">Writing practice</h2>
+        {stats.writing.submissions === 0 ? (
+          <p className="text-gray-400 text-sm">No submissions yet. Go to Writing to start!</p>
+        ) : (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Total submissions</span>
+              <span className="font-semibold text-gray-800 dark:text-gray-100">{stats.writing.submissions}</span>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Average score</span>
+                <span className={`font-semibold text-sm ${stats.writing.avg_score >= 80 ? 'text-green-600' : stats.writing.avg_score >= 60 ? 'text-yellow-500' : 'text-red-500'}`}>
+                  {stats.writing.avg_score}/100
+                </span>
+              </div>
+              <ProgressBar
+                value={stats.writing.avg_score}
+                max={100}
+                color={stats.writing.avg_score >= 80 ? 'bg-green-500' : stats.writing.avg_score >= 60 ? 'bg-yellow-400' : 'bg-red-400'}
+              />
+            </div>
           </div>
         )}
       </div>

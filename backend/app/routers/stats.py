@@ -14,6 +14,7 @@ XP = {
     "grammar_wrong": 5,
     "conversation_message": 5,
     "listening_base": 10,
+    "writing_submit": 10,
 }
 
 LEVELS = [
@@ -67,6 +68,7 @@ def update_streak(stats: UserStats) -> bool:
 class ActivityIn(BaseModel):
     action: str
     bonus: int = 0
+    score: int = 0  # raw score for writing submissions (0-100)
 
 @router.get("")
 def get_stats(db: Session = Depends(get_db)):
@@ -109,6 +111,10 @@ def get_stats(db: Session = Depends(get_db)):
         },
         "conversations": stats.conversations or 0,
         "listening_attempts": stats.listening_attempts or 0,
+        "writing": {
+            "submissions": stats.writing_submissions or 0,
+            "avg_score": round((stats.writing_total_score or 0) / stats.writing_submissions) if stats.writing_submissions else 0,
+        },
     }
 
 @router.post("/activity")
@@ -127,6 +133,9 @@ def record_activity(data: ActivityIn, db: Session = Depends(get_db)):
         stats.conversations = (stats.conversations or 0) + 1
     elif data.action == "listening_base":
         stats.listening_attempts = (stats.listening_attempts or 0) + 1
+    elif data.action == "writing_submit":
+        stats.writing_submissions = (stats.writing_submissions or 0) + 1
+        stats.writing_total_score = (stats.writing_total_score or 0) + data.score
 
     db.commit()
     return {

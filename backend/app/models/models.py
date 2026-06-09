@@ -35,3 +35,5 @@ class UserStats(Base):
     grammar_total = Column(Integer, default=0)
     conversations = Column(Integer, default=0)
     listening_attempts = Column(Integer, default=0)
+    writing_submissions = Column(Integer, default=0)
+    writing_total_score = Column(Integer, default=0)

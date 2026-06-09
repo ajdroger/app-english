@@ -15,9 +15,9 @@ interface XpToast {
 let toastId = 0
 const listeners: ((xp: number, streakExtended: boolean) => void)[] = []
 
-export function awardXp(action: string, bonus = 0) {
+export function awardXp(action: string, bonus = 0, score = 0) {
   return axios
-    .post('/api/stats/activity', { action, bonus })
+    .post('/api/stats/activity', { action, bonus, score })
     .then(res => {
       listeners.forEach(fn => fn(res.data.xp_earned, res.data.streak_extended))
       return res.data

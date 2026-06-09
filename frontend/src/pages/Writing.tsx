@@ -76,7 +76,7 @@ export default function Writing() {
         prompt: current.text,
       })
       setFeedback(res.data)
-      awardXp('grammar_correct', Math.round(res.data.score / 10))
+      awardXp('writing_submit', Math.round(res.data.score / 10), res.data.score)
     } catch {
       // silent
     } finally {
