@@ -5,6 +5,7 @@ import Vocabulary from './pages/Vocabulary'
 import Grammar from './pages/Grammar'
 import Listening from './pages/Listening'
 import Conversation from './pages/Conversation'
+import Writing from './pages/Writing'
 import Profile from './pages/Profile'
 import Review from './pages/Review'
 import StatsBar from './components/StatsBar'
@@ -27,6 +28,7 @@ const navItems = [
   { to: '/review', label: '🔁 Review', badge: <ReviewBadge /> },
   { to: '/grammar', label: '✏️ Grammar' },
   { to: '/listening', label: '🎧 Listening' },
+  { to: '/writing', label: '✍️ Writing' },
   { to: '/conversation', label: '💬 Conversation' },
   { to: '/profile', label: '👤 Profile' },
 ]
@@ -69,6 +71,7 @@ export default function App() {
             <Route path="/review" element={<Review />} />
             <Route path="/grammar" element={<Grammar />} />
             <Route path="/listening" element={<Listening />} />
+            <Route path="/writing" element={<Writing />} />
             <Route path="/conversation" element={<Conversation />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models.models import Base
 from app.data.seed import seed
-from app.routers import vocabulary, grammar, listening, conversation, stats
+from app.routers import vocabulary, grammar, listening, conversation, stats, writing
 
 Base.metadata.create_all(bind=engine)
 seed()
@@ -25,6 +25,7 @@ app.include_router(grammar.router)
 app.include_router(listening.router)
 app.include_router(conversation.router)
 app.include_router(stats.router)
+app.include_router(writing.router)
 
 @app.get("/api/health")
 def health():
