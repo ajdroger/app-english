@@ -19,7 +19,7 @@ Entrambi devono essere attivi contemporaneamente.
 
 2. Clona il repository (se non l'hai già)
    git clone https://github.com/ajdroger/app-english.git
-   cd app-english/english-app
+   cd app-english/multi-learning-language-app
 
 ================================================================================
   LINUX (Debian / Ubuntu / Parrot OS / Mint)
@@ -37,7 +37,7 @@ Entrambi devono essere attivi contemporaneamente.
   # (si avvia automaticamente ad ogni login grazie al socket systemd)
 
   # Backend — crea l'ambiente virtuale e installa i pacchetti
-  cd english-app/backend
+  cd multi-learning-language-app/backend
   python3 -m venv venv
   source venv/bin/activate
   pip install -r requirements.txt
@@ -55,12 +55,12 @@ Entrambi devono essere attivi contemporaneamente.
   Apri DUE terminali:
 
   Terminale 1 — Backend:
-    cd ~/Scrivania/progetti/english-app/backend
+    cd ~/Scrivania/progetti/multi-learning-language-app/backend
     source venv/bin/activate
     uvicorn app.main:app --reload
 
   Terminale 2 — Frontend:
-    cd ~/Scrivania/progetti/english-app/frontend
+    cd ~/Scrivania/progetti/multi-learning-language-app/frontend
     npm run dev
 
   Apri Firefox/Chrome su: http://localhost:5173
@@ -87,7 +87,7 @@ Entrambi devono essere attivi contemporaneamente.
      https://git-scm.com/download/win
 
   4. Apri PowerShell (o Git Bash) e vai nella cartella del progetto:
-     cd C:\Users\TuoNome\percorso\english-app
+     cd C:\Users\TuoNome\percorso\multi-learning-language-app
 
   5. Backend:
      cd backend
@@ -107,12 +107,12 @@ Entrambi devono essere attivi contemporaneamente.
   Apri DUE finestre PowerShell:
 
   Finestra 1 — Backend:
-    cd percorso\english-app\backend
+    cd percorso\multi-learning-language-app\backend
     venv\Scripts\activate
     uvicorn app.main:app --reload
 
   Finestra 2 — Frontend:
-    cd percorso\english-app\frontend
+    cd percorso\multi-learning-language-app\frontend
     npm run dev
 
   Apri Chrome/Edge su: http://localhost:5173
@@ -139,7 +139,7 @@ Entrambi devono essere attivi contemporaneamente.
      brew install python node git
 
   3. Backend:
-     cd english-app/backend
+     cd multi-learning-language-app/backend
      python3 -m venv venv
      source venv/bin/activate
      pip install -r requirements.txt
@@ -156,12 +156,12 @@ Entrambi devono essere attivi contemporaneamente.
   Apri DUE finestre di Terminale:
 
   Terminale 1 — Backend:
-    cd percorso/english-app/backend
+    cd percorso/multi-learning-language-app/backend
     source venv/bin/activate
     uvicorn app.main:app --reload
 
   Terminale 2 — Frontend:
-    cd percorso/english-app/frontend
+    cd percorso/multi-learning-language-app/frontend
     npm run dev
 
   Apri Safari o Chrome su: http://localhost:5173
@@ -263,10 +263,10 @@ Entrambi devono essere attivi contemporaneamente.
     Android: Impostazioni → Gestione generale → Lingua → TTS
 
   [node_modules mancante / errori npm]
-    cd english-app/frontend && npm install
+    cd multi-learning-language-app/frontend && npm install
 
   [venv non trovato]
-    cd english-app/backend
+    cd multi-learning-language-app/backend
     python3 -m venv venv
     source venv/bin/activate  (Linux/macOS)
     venv\Scripts\activate     (Windows)
@@ -277,10 +277,10 @@ Entrambi devono essere attivi contemporaneamente.
 ================================================================================
 
   Terminale 1:
-    cd ~/Scrivania/progetti/english-app/backend && source venv/bin/activate && uvicorn app.main:app --reload
+    cd ~/Scrivania/progetti/multi-learning-language-app/backend && source venv/bin/activate && uvicorn app.main:app --reload
 
   Terminale 2:
-    cd ~/Scrivania/progetti/english-app/frontend && npm run dev
+    cd ~/Scrivania/progetti/multi-learning-language-app/frontend && npm run dev
 
   Browser: http://localhost:5173
 

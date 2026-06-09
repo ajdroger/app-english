@@ -24,7 +24,7 @@ Both servers must run simultaneously. Vite proxies all `/api/*` to `http://local
 ## Architecture
 
 ```
-english-app/
+multi-learning-language-app/
 ├── come-avviare-l'app          # Full setup guide: Linux/Windows/macOS/Android/iOS
 ├── frontend/
 │   ├── index.html              # PWA meta tags (theme-color, apple-mobile-web-app-capable, manifest)
